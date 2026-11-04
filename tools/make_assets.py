@@ -62,6 +62,11 @@ ICONS = {
     "e29": "a folded official indictment document with a dark olive green seal and a small bullet emblem",
     "e30": "a broadcast permit application form stamped with a large red REJECTED stamp, a small antenna tower icon in the corner",
     "e31": "a medical diagnosis chart with a head x-ray image showing a small bullet fragment",
+    "e32": "a stapled script booklet with several lines crossed out in red pen and a neat red handwritten note at the bottom",
+    "e33": "an inspection form clipped to a board next to a rifle magazine, with a tally of bullets and an official stamp",
+    "e34": "a small security camera on a lamppost above a plaza at night, with a bouquet of flowers at its base",
+    "e35": "a typed broadcast manuscript page with a paperclip and a small microphone icon in the corner",
+    "e36": "a glowing digital map screen of a city square with seven red dots and dotted measuring lines",
 }
 
 
