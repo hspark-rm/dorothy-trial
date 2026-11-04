@@ -67,6 +67,9 @@ ICONS = {
     "e34": "a small security camera on a lamppost above a plaza at night, with a bouquet of flowers at its base",
     "e35": "a typed broadcast manuscript page with a paperclip and a small microphone icon in the corner",
     "e36": "a glowing digital map screen of a city square with seven red dots and dotted measuring lines",
+    "e37": "a paper inventory checklist tag tied with string to a cardboard box, a small cassette tape beside it",
+    "e38": "an open logbook on a desk next to a broadcast microphone and a small cup of tea",
+    "e39": "a clipboard with an equipment checklist and a single elegant porcelain teacup on a shelf",
 }
 
 
