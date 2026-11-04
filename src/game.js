@@ -287,7 +287,7 @@
   }
   function wantedMusic() {
     if (muted) return null;
-    if (S.scene === 'title' || S.scene === 'skins') return 'title';
+    if (S.scene === 'title' || S.scene === 'skins' || S.scene === 'select') return 'title';
     if (S.scene !== 'play' || S.mode === 'chapter') return null;
     if (S.inv) return 'invest';
     if (S.bg === 'void' || S.bg === 'nightmare' || S.bg === 'night') return 'mystery';
@@ -328,6 +328,7 @@
       if (op.op === 'choice') (op.options || []).forEach((o, k) => { if (o.wrong) walk(o.wrong, `${at}.opt${k}`); else needLabel(o.goto, at); });
       if (op.op === 'possess') { needChar(op.who || 'medium', at); if (op.as) needChar(op.as, at); }
       if (op.op === 'alias') needChar(op.who, at);
+      if (op.op === 'label' && /^trial/.test(op.id) && !(CASE.trials || []).some((t) => t.label === op.id)) dataErrors.push(`심 선택에 없는 label '${op.id}' (${at})`);
       if (op.op === 'give') needEv(op.id, at);
       if (op.op === 'demand') { needEv(op.answer, at); needLabel(op.ok, at); needChar(op.who, at); walk(op.wrong || [], at + '.wrong'); }
       if (op.op === 'investigate') {
@@ -741,8 +742,13 @@
     else if (S.mode === 'cross') crossMove(1); // 신문 중에 화면을 누르면 다음 증언으로
   }
   let nameBox = null;
-  function startNew() {
-    if (!CASE.askName || !document.body) { begin(null); return; }
+  function startAt(label) {
+    if (!label) { begin(null); return; }
+    wrongCount = new WeakMap();
+    begin({ pc: labels.get(label), ev: [], bg: 'court', stats: { wrongs: 0, hints: 0, overs: 0, sec: 0 }, hinted: true });
+  }
+  function startNew(label) {
+    if (!CASE.askName || !document.body) { startAt(label); return; }
     if (nameBox) return;
     nameBox = document.createElement('div');
     nameBox.style.cssText = 'position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(7,6,12,.78);z-index:10;font-family:Galmuri11,sans-serif';
@@ -760,7 +766,7 @@
       const n = input.value.trim() || DEFAULT_NAME;
       try { localStorage.setItem(NAME_KEY, n); } catch (err) { /* 이번 판에서만 */ }
       nameBox.remove(); nameBox = null;
-      applyName(n); begin(null);
+      applyName(n); startAt(label);
     });
     setTimeout(() => { input.focus(); input.select(); }, 30);
   }
@@ -778,6 +784,11 @@
       else if (k === 'Enter' || k === ' ') { if (titleSel === 1 && S.saved) begin(S.saved); else startNew(); }
       e.preventDefault();
       return;
+    }
+    if (S.scene === 'select') {
+      const t = (CASE.trials || [])[Number(k) - 1];
+      if (t) startNew(t.label); else if (k === 'Escape' || k === 'x' || k === 'X') S.scene = 'title';
+      e.preventDefault(); return;
     }
     if (S.scene !== 'play') { if (k === 'Enter' || k === ' ') { S.scene === 'over' ? retry() : toTitle(); } return; }
     if (S.logView) {
@@ -1222,6 +1233,7 @@
     const hasSkins = Object.keys(CASE.variants || {}).length > 0;
     const row = [[sound, toggleMute]];
     if (hasSkins) row.push(['의상', () => { S.scene = 'skins'; }]);
+    if ((CASE.trials || []).length) row.push(['심 선택', () => { S.scene = 'select'; SFX.select(); }]);
     if (canFull && !isFull()) row.push(['전체 화면', goFull]);
     const bw = 64, gap = 10, x0 = Math.round(160 - (row.length * bw + (row.length - 1) * gap) / 2);
     row.forEach(([label, fn], i) => button(x0 + i * (bw + gap), 130, bw, 18, label, fn));
@@ -1284,6 +1296,14 @@
     text(m.text, 270 + j(3), 64 + j(4), COL.text, { align: 'center', outline: COL.ink, scale: 10 / 12 });
     g.globalAlpha = 1;
   }
+  // 심 선택: 1·2·3심을 따로 시작한다(CASE.trials: { label, title, sub })
+  function drawSelect() {
+    rect(0, 0, W, H, COL.night);
+    text('심 선택', 160, 10, COL.gold, { align: 'center', bold: true, scale: 1.5 });
+    text('고른 심의 처음부터 시작합니다. 증거는 그 심에서 새로 모읍니다.', 160, 36, COL.dim, { align: 'center', scale: 10 / 12 });
+    CASE.trials.forEach((t, i) => button(70, 54 + i * 28, 180, 22, `${t.title} 「${t.sub}」`, () => startNew(t.label)));
+    button(120, 146, 80, 18, '돌아가기', () => { S.scene = 'title'; SFX.select(); });
+  }
   function drawSkins() {
     rect(0, 0, W, H, COL.night);
     text('의상 고르기', 160, 8, COL.gold, { align: 'center', bold: true });
@@ -1316,6 +1336,7 @@
     if (portraitHeld()) drawRotate();
     else if (S.scene === 'title') drawTitle();
     else if (S.scene === 'skins') drawSkins();
+    else if (S.scene === 'select') drawSelect();
     else if (S.scene === 'over') drawOver();
     else if (S.scene === 'end') drawEnd();
     else if (S.mode === 'chapter') drawChapter();
