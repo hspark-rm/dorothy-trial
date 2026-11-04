@@ -19,6 +19,8 @@ window.CASE = {
     { label: 'trial2', title: '제2심', sub: '도반의 법정' },
     { label: 'trial3', title: '제3심', sub: '승리의 여신에게' },
   ],
+  // 한 장 그림(CG) 배경: 이 배경에서는 초상을 그리지 않는다. salute = 버닝엄의 경례(사용자가 준 그림을 참고로 그린 도트 CG)
+  cg: ['salute'],
   pocket: false, // 증거가 주머니에서 저절로 나오는 연출을 쓰지 않는다(사용자 지정 2026-11-04)
   askName: true, defaultName: '지휘관', // 새로 시작할 때 이름을 묻는다
   title: '도로시 재판',
@@ -1292,12 +1294,18 @@ window.CASE = {
           press: [
             { who: 'me', line: '봉인된 기록은 누구나 열 수 있습니까?' },
             { who: 'arcana', line: '아뇨. 부사령관의 요청, 아니면 법정의 명령이 있어야 하구요. 이번엔 둘 다였죠. …그쪽이 물어보니까 다 대답해 주고 싶네요.' },
+            { who: 'arcana', face: 'blush', line: '…그, 그쪽. 그렇게 똑바로 보면서 물으면 곤란해요. 집중이 안 되잖아요.' },
+            { who: 'anis', face: 'shock', line: '…잠깐. 저 계집애 누구야? 증인석에서 왜 지휘관님한테 교태를 부려?' },
+            { who: 'rapi', face: 'stern', line: '…증인석에서 할 행동은 아닙니다. 지휘관, 정신 차리십시오.' },
+            { who: 'judge', line: '방청석은 정숙하십시오. …증인도.' },
           ] },
         { line: '검사님 요청으로 100년 전 그 부대의 명부를 열었어요. 부대 이름은… 갓데스 스쿼드예요.',
           press: [
             { who: 'me', line: '갓데스 스쿼드라면, 광장 여신상의 그 부대 말입니까?' },
             { who: 'arcana', line: '네. 방주가 동상을 세운 바로 그 부대요. 공식 기록에선 이름이 지워져 있었구요.' },
             { op: 'fx', kind: 'murmur', text: '가, 갓데스…?!' },
+            { who: 'arcana', face: 'blush', line: '어머나, 그쪽 놀란 얼굴은 처음 봐요. …좋네요, 그 얼굴.' },
+            { who: 'anis', line: '아오, 또 저런다. 지금 재판 중이거든?' },
           ] },
         { line: '명부에는 일곱 이름이 있어요. 그중 "도로시"는 작전 중 전사로 기록돼 있고요.',
           press: [
@@ -1312,6 +1320,9 @@ window.CASE = {
           press: [
             { who: 'me', line: '증인은 피고가 그 도로시가 아니라고 생각하십니까?' },
             { who: 'arcana', face: 'smile', line: '저는 기록을 읽을 뿐이에요. 생각은… 카드가 대신해 주거든요. 그쪽 운세라면 공짜로 봐 드릴게요.' },
+            { who: 'arcana', face: 'blush', line: '…사실 벌써 봤거든요. 그쪽 연애운, 꽤 좋던데요? 상대가 아주 가까이 있대요.' },
+            { who: 'rapi', face: 'stern', line: '재판장님. 증인이 증언과 관계없는 말을 하고 있습니다.' },
+            { who: 'anis', line: '라피, 잘한다! 더 해, 더!' },
           ] },
       ],
       after: [
@@ -1354,7 +1365,9 @@ window.CASE = {
     { who: 'burningham', face: 'stern', line: '피, 피고 본인이 인정했다. 그렇다면 공소사실은 피고의 것이다. 갓데스 스쿼드는 탈주했다.' },
     { who: 'judge', line: '……' },
     { who: 'judge', line: '피고의 신원이 확인되었습니다. 변호인의 준비를 위해 휴정하고, 오후에 속행합니다.' },
-    { who: 'arcana', face: 'smile', line: '그쪽. 오늘 봉인 연 값은… 나중에 차 한잔으로 받을게요. 새끼손가락 걸어요, 얍!' },
+    { who: 'arcana', face: 'blush', line: '그쪽. 오늘 봉인 연 값은… 나중에 차 한잔으로 받을게요. 새끼손가락 걸어요, 얍!' },
+    { who: 'anis', face: 'shock', line: '…지휘관님, 저 계집애랑 지금 무슨 약속을 한 거야?' },
+    { who: 'rapi', face: 'stern', line: '휴정 시간에 해명해 주십시오, 지휘관. 자세히.' },
     { op: 'hide' },
     { op: 'bg', id: 'coffin' },
     { op: 'chapter', text: '조사', sub: '휴정 · 방주 입구 · 지상 탈환 전장' },
@@ -2011,6 +2024,20 @@ window.CASE = {
     { who: 'me', line: '(…변호인만 몰랐던 재판이었다. 그래도, 결론을 끌어낸 건 증거였다.)' },
     { op: 'hide' },
 
+    // ── 경례: 갱생관의 문가 (CG) ──
+    { op: 'bg', id: 'salute' },
+    { op: 'chapter', text: '판결 다음 날', sub: '갱생관' },
+    { who: null, line: '판결 다음 날 아침, 갱생관. 석방 서류에 이름을 적던 도로시 앞에서, 문이 열렸다.' },
+    { who: null, line: '쏟아지는 빛 속에 버닝엄이 서 있었다. 지팡이도, 더듬는 말투도 없이.' },
+    { who: 'burningham', line: '도로시. 할아버지가 끝내 직접 하지 못한 말이 있다. 방주를 대표해서, 내가 하겠다.' },
+    { op: 'fx', kind: 'flash' },
+    { who: 'burningham', line: '방주를 위해 싸워 준, 갓데스 스쿼드에게 감사를.' },
+    { who: null, color: '#e8c060', line: '버닝엄은 오래도록 경례한 채 서 있었다. 100년 전, 문 너머의 누군가가 하지 못한 경례였다.' },
+    { who: 'dorothy', line: '…………' },
+    { who: 'dorothy', line: '…그 말을, 100년 동안 기다렸어요. 문 너머에서 들려오기를.' },
+    { who: 'me', line: '(문 밖에서 나는 그 장면을 지켜보았다. 도로시는 끝까지 고개를 들고 있었다.)' },
+    { op: 'hide' },
+
     // ── 에필로그: 광장, 승리의 여신상 앞 ──
     { op: 'bg', id: 'plaza' },
     { op: 'chapter', text: '에필로그', sub: '승리의 여신에게' },
@@ -2023,14 +2050,17 @@ window.CASE = {
     { who: 'anis', face: 'smile', line: '지휘관님, 도로시! 사진 찍자, 사진!' },
     { who: 'neon', face: 'smile', line: '스승님! 오늘의 화력은 꽃이에요! 후후~' },
     { who: 'arcana', face: 'smile', line: '그쪽, 오늘 운세는 대길이에요. …제가 그렇게 정했거든요. 다음엔 금서고로 놀러 와요. 꼭이요.' },
+    { who: 'arcana', face: 'blush', line: '…아니면 지금 가도 되구요. 새끼손가락 걸었잖아요. 차 한잔, 기억하죠?' },
+    { who: 'anis', line: '어이어이, 거기 도서관 아가씨. 지휘관님한테 너무 붙는 거 아니야?' },
+    { who: 'rapi', face: 'stern', line: '지휘관은 이후 일정이 있습니다. 일정 관리는 제가 합니다.' },
+    { who: 'arcana', face: 'smile', line: '어머나? 질투예요? 카드가 그러는데요, 오늘 그쪽 연애운이—' },
+    { who: 'anis', face: 'shock', line: '아오! 그 카드 좀 치워!' },
+    { who: 'dorothy', face: 'smile', line: '…방주는 여전히 시끄럽네요. 그래도, 나쁘지 않아요.' },
     { who: 'rapi', line: '……도로시. 그 옷, 잘 어울려.' },
     { who: 'dorothy', face: 'smile', line: '…고마워요, 라피. 그날 일은, 정말 미안했어요.' },
-    { who: 'burningham', face: 'stern', line: '모두 주목.' },
-    { who: null, color: '#e8c060', line: '버닝엄이 여신상 앞에 섰다. 100년 전 문 너머의 누군가처럼, 그러나 이번에는 얼굴을 보인 채로.' },
-    { op: 'fx', kind: 'flash' },
-    { who: 'burningham', face: 'stern', line: '방주를 위해 싸워 준, 갓데스 스쿼드에게 감사를.' },
+    { who: null, color: '#e8c060', line: '여신상 앞에서 누군가 손을 들어 경례했다. 그날 아침 갱생관 문가의 버닝엄처럼.' },
     { op: 'fx', kind: 'murmur', text: '감사를…!' },
-    { who: null, line: '광장의 시민들이, 니케들이, 하나둘 손을 들어 경례했다.' },
+    { who: null, line: '광장의 시민들이, 니케들이, 하나둘 따라 손을 들었다.' },
     { who: 'dorothy', face: 'sad', line: '……' },
     { who: 'dorothy', face: 'smile', line: '…귀하. 레드 후드가 남긴 말, 기억해요? "네가 먼저 사랑해."' },
     { who: 'dorothy', face: 'smile', line: '이번엔… 제가 먼저 해 볼게요. 방주를, 조금씩.' },

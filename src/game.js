@@ -450,7 +450,7 @@
         sub([...react, got], () => { S.pocket = null; step(); });
         return true;
       }
-      case 'bg': S.bg = op.id; return false;
+      case 'bg': S.bg = op.id; if ((CASE.cg || []).includes(op.id)) S.portrait = null; return false;
       // 저장 지점(모순을 하나 풀 때마다)에서 하트를 다시 채운다. 앞 증언의 실수가 뒤 증언까지 이어지지 않게
       case 'save': S.patience = MAX_PATIENCE; save(); return false;
       case 'chapter': S.portrait = null; S.chapter = op; S.mode = 'chapter'; return true;
@@ -470,7 +470,7 @@
   const LINE_W = 296, LINES = 3, CPS = 45;
   function startLine(op) {
     const ch = op.who ? CASE.chars[op.who] : null;
-    if (ch && ch.portrait !== false) S.portrait = { id: op.who, face: op.face || 'normal' };
+    if (ch && ch.portrait !== false && !(CASE.cg || []).includes(S.bg)) S.portrait = { id: op.who, face: op.face || 'normal' };
     const think = op.who === 'me' && op.line.startsWith('(');
     const all = wrap(op.line, LINE_W);
     const pages = [];
@@ -1040,7 +1040,7 @@
     }
     if (S.patience === 1) { const w = tw('종결 경고', true) + 8; rect(58, 3, w, 14, COL.red); text('종결 경고', 62, 3, COL.text, { bold: true }); }
     const can = S.mode === 'line' || S.mode === 'cross' || S.mode === 'inv';
-    button(146, 3, 56, 16, keyHint('기록', 'L'), openLog, { off: !!S.overlay || !S.log.length });
+    button(132, 3, 70, 16, keyHint('대사 기록', 'L'), openLog, { off: !!S.overlay || !S.log.length });
     button(206, 3, 56, 16, keyHint(`${speed}배속`, 'F'), toggleSpeed, { off: !!S.overlay });
     button(266, 3, 50, 16, keyHint('증거', 'E'), () => openOverlay(S.mode === 'cross' ? 'cross' : 'view'), { off: !can || !!S.overlay });
     if (S.inv) {

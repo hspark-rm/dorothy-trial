@@ -46,7 +46,7 @@ FACES = {
     "andersen": ["normal", "smile", "sad"],          # 3심 재판장 엔더슨(판결 뒤 얼굴을 드러냄)
     "andersen_hidden": ["normal"],                   # 얼굴을 가린 3심 재판장. 참고 = andersen.png + BASE_EXTRA
     "medium_oswald": ["normal", "sad"],              # 빙의한 오스왈드(영매 옷 + 오스왈드 얼굴·체형)
-    "arcana": ["normal", "smile", "shock"],          # 3심 첫 증인, 금서고 사서. 이격 「포춘 메이트」
+    "arcana": ["normal", "smile", "shock", "blush"],  # 3심 첫 증인, 금서고 사서. 이격 「포츈 메이트」. blush = 지휘관을 보며 볼이 발그레
 }
 FACE_DESC = {
     "normal": "calm, neutral expression",
@@ -57,6 +57,7 @@ FACE_DESC = {
     "stern": "stern, serious expression, narrowed eyes, closed mouth",
     "confident": "confident smirk, determined sharp eyes, slight smile",
     "angry": "angry expression, furrowed brows, glaring eyes, gritted teeth",
+    "blush": "deeply blushing with rosy pink cheeks, shy lovestruck gaze looking slightly to the side at someone, small happy smile",
     "trance": "eyes closed in a trance, faint purple glow around the head, calm face",
     "open": "eyes opened, bright glowing light sky-blue irises with a white star-shaped highlight, serious determined look",
 }
@@ -123,6 +124,25 @@ def generate(prompt, refs, dest):
     return res.returncode == 0 and dest.exists()
 
 
+def clear_enclosed_white(a, min_frac=0.002):
+    """팔과 머리카락 사이처럼 테두리와 이어지지 않은 배경도 지운다.
+    모델의 배경은 순백(모든 채널 252 이상)이고, 흰 옷은 팔레트의 회백색이라 구별된다."""
+    h, w = a.shape[:2]
+    pure = (a[:, :, 3] > 0) & (a[:, :, :3].min(axis=2) >= 252)
+    seen = np.zeros((h, w), bool)
+    for y, x in zip(*np.nonzero(pure)):
+        if seen[y, x]:
+            continue
+        q = deque([(y, x)]); seen[y, x] = True; pts = []
+        while q:
+            cy, cx = q.popleft(); pts.append((cy, cx))
+            for ny, nx in ((cy + 1, cx), (cy - 1, cx), (cy, cx + 1), (cy, cx - 1)):
+                if 0 <= ny < h and 0 <= nx < w and pure[ny, nx] and not seen[ny, nx]:
+                    seen[ny, nx] = True; q.append((ny, nx))
+        if len(pts) > h * w * min_frac:
+            ys, xs = zip(*pts); a[list(ys), list(xs), 3] = 0
+
+
 def remove_background(src, dest, tol=28):
     """테두리에서 이어진 흰색(에 가까운) 영역만 투명하게 만든다. 인물 안쪽의 흰색은 남는다."""
     im = Image.open(src).convert("RGBA")
@@ -147,6 +167,7 @@ def remove_background(src, dest, tol=28):
             if 0 <= ny < h and 0 <= nx < w and near_white[ny, nx] and not bg[ny, nx]:
                 bg[ny, nx] = True; q.append((ny, nx))
     a[bg, 3] = 0
+    clear_enclosed_white(a)
     out = Image.fromarray(a)
     box = out.getbbox()
     if box:
