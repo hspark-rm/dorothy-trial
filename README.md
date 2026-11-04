@@ -6,7 +6,7 @@
 > 이 프로젝트는 비영리 팬 프로젝트이며 원작의 권리를 존중합니다. 모든 캐릭터·세계관의 권리는 SHIFT UP에 있습니다.
 > 권리자가 요청하면 즉시 중단하고 삭제합니다. 모델 원본 출력(`assets/raw/`)은 올리지 않습니다.
 
-플레이: <https://hspark-rm.github.io/dorothy-trial/>
+플레이: <https://dorothy-trial.pages.dev/> (Cloudflare Pages, `tools/deploy_cf.sh`로 올림)
 
 제작: 닥터야돈 · 피드백: globalchmist@naver.com
 
