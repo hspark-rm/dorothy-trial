@@ -31,6 +31,7 @@ CREDITS_PER_IMAGE = 11               # gpt-image-2.5-sunburst 실측(2026-10-04)
 FACES = {
     # 나유타 재판에서 가져온 초상(judge·prosecutor·snowwhite·hongryeon·johan·anis…)은 여기 두지 않는다 — 다시 만들지 않게
     "dorothy": ["normal", "smile", "angry", "sad"],  # 피고. 귀족적 존댓말, 겉은 복수심·속은 방주를 사랑함
+    "dorothy_alt": ["normal", "smile", "sad"],      # 도로시 최신 이격(미출시, 사용자 제공 그림) — 3심 엔딩에서 alias로 바꿈
     "medium": ["normal", "trance"],                  # 영매 = 양산형 니케(Product 08)
     # 빙의 모습: 옷은 영매(medium) 그대로, 얼굴·머리·체형만 그 인물. 참고 = medium_normal + <인물>.png
     "medium_redhood": ["normal", "smile", "sad"],
