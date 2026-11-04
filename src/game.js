@@ -328,7 +328,7 @@
       if (op.op === 'choice') (op.options || []).forEach((o, k) => { if (o.wrong) walk(o.wrong, `${at}.opt${k}`); else needLabel(o.goto, at); });
       if (op.op === 'possess') { needChar(op.who || 'medium', at); if (op.as) needChar(op.as, at); }
       if (op.op === 'alias') needChar(op.who, at);
-      if (op.op === 'label' && /^trial/.test(op.id) && !(CASE.trials || []).some((t) => t.label === op.id)) dataErrors.push(`심 선택에 없는 label '${op.id}' (${at})`);
+      if (op.op === 'label' && /^(trial|epilogue)/.test(op.id) && !(CASE.trials || []).some((t) => t.label === op.id)) dataErrors.push(`심 선택에 없는 label '${op.id}' (${at})`);
       if (op.op === 'give') needEv(op.id, at);
       if (op.op === 'demand') { needEv(op.answer, at); needLabel(op.ok, at); needChar(op.who, at); walk(op.wrong || [], at + '.wrong'); }
       if (op.op === 'investigate') {
@@ -1301,8 +1301,8 @@
     rect(0, 0, W, H, COL.night);
     text('심 선택', 160, 10, COL.gold, { align: 'center', bold: true, scale: 1.5 });
     text('고른 심의 처음부터 시작합니다. 증거는 그 심에서 새로 모읍니다.', 160, 36, COL.dim, { align: 'center', scale: 10 / 12 });
-    CASE.trials.forEach((t, i) => button(70, 54 + i * 28, 180, 22, `${t.title} 「${t.sub}」`, () => startNew(t.label)));
-    button(120, 146, 80, 18, '돌아가기', () => { S.scene = 'title'; SFX.select(); });
+    CASE.trials.forEach((t, i) => button(60, 50 + i * 24, 200, 20, `${t.title} 「${t.sub}」`, () => startNew(t.label)));
+    button(120, 152, 80, 18, '돌아가기', () => { S.scene = 'title'; SFX.select(); });
   }
   function drawSkins() {
     rect(0, 0, W, H, COL.night);
