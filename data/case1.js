@@ -1082,7 +1082,7 @@ window.CASE = {
         { face: 'sad', line: '아가씨는 방주가 미워서 그랬던 거야. 옛 팀을 다시 세워서 복수하려고.',
           press: [
             { who: 'me', line: '복수하려고 했다는 것은, 피고가 직접 그렇게 말했습니까?' },
-            { who: 'medium', line: '…아가씨는 늘 복수, 복수 했잖아. 그 애 머릿속엔 그것밖에 없어.' },
+            { who: 'medium', line: '…아가씨는 늘 복수, 복수 했잖아. 아가씨 머릿속엔 그것밖에 없어.' },
             { op: 'fx', kind: 'stamp', text: '이의 있다!', color: '#9a3030' },
             { who: 'ingrid', face: 'stern', line: '고인 본인의 증언이다. 동기는 방주에 대한 복수였다.' },
             { who: 'me', easy: true, line: '(…아니다. 도로시는 면회실에서, 그날의 진짜 이유를 말해 줬다.)' },
@@ -1091,7 +1091,7 @@ window.CASE = {
         { line: '그래서 내가 몸을 돌려줬지. 라피 몸은 라피 거니까.',
           press: [
             { who: 'me', line: '피고가 막지는 않았습니까?' },
-            { who: 'medium', face: 'smile', line: '막았지. 총까지 쐈잖아. 주사기에. 그 애 사격은 예나 지금이나 정확해.' },
+            { who: 'medium', face: 'smile', line: '막았지. 총까지 쐈잖아. 주사기에. 아가씨 사격은 예나 지금이나 정확해.' },
           ] },
       ],
       after: [
