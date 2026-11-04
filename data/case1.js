@@ -187,7 +187,7 @@ window.CASE = {
           name: '갱생관 면회실', bg: 'rehab', who: 'dorothy', desc: '도로시가 재판을 기다리는 갱생관의 면회실.', move: [],
           enter: [
             { who: null, line: '방주 갱생관. 두꺼운 유리 너머에 도로시가 앉아 있다. 필그림이 이곳에 갇힌 건 처음이다.' },
-            { who: 'dorothy', line: '어머, 귀하. 면회라니 의외네요. 방주 사람들은 저를 구경만 하던데요.' },
+            { who: 'dorothy', face: 'smirk', line: '어머, 귀하. 면회라니 의외네요. 방주 사람들은 저를 구경만 하던데요.' },
             { who: 'me', line: '구경하러 온 거 아니야. 내가 네 변호를 맡았어. 라피가 부탁했거든.' },
             { who: 'dorothy', face: 'shock', line: '…라피가요? 제가 버림패라고 한 그 아이가?' },
             { who: 'dorothy', face: 'angry', line: '동정이라면 사양하겠어요. 방주 법정이 필그림을 공정하게 볼 리도 없고요.' },
@@ -198,7 +198,7 @@ window.CASE = {
           spots: [
             { name: '면회 유리창', x: 95, y: 20, w: 140, h: 70, lines: [
               { who: 'me', line: '(두꺼운 유리다. 도로시는 이쪽을 보지 않으려 애쓰는 것 같다.)' },
-              { who: 'dorothy', line: '유리가 두꺼워서 다행이에요. 귀하 얼굴을 너무 가까이 안 봐도 되니까요.' },
+              { who: 'dorothy', face: 'smirk', line: '유리가 두꺼워서 다행이에요. 귀하 얼굴을 너무 가까이 안 봐도 되니까요.' },
             ] },
             { name: '증거 보관함', x: 8, y: 10, w: 42, h: 100, lines: [
               { who: null, line: '번호가 붙은 서랍장. 사건 증거물을 보관하는 곳이다.' },
@@ -209,7 +209,7 @@ window.CASE = {
             ] },
             { name: '벽의 환영 포스터', x: 278, y: 2, w: 36, h: 48, lines: [
               { who: null, line: '빛바랜 포스터. "지상 최후의 낙원, 방주에 오신 것을 환영합니다."' },
-              { who: 'dorothy', line: '그 문구, 낯익지 않으세요? 제 채널은 그걸 조금 바꿔 썼을 뿐이에요.' },
+              { who: 'dorothy', face: 'smirk', line: '그 문구, 낯익지 않으세요? 제 채널은 그걸 조금 바꿔 썼을 뿐이에요.' },
               { who: 'me', line: '(방주의 환영 문구를 에덴으로 바꾼 거다.)' },
             ] },
             { name: '압수 소지품 상자', x: 256, y: 86, w: 30, h: 22, lines: [
@@ -228,14 +228,14 @@ window.CASE = {
           talk: [
             { topic: '재판에 대해', lines: [
               { who: 'dorothy', line: '두 가지 혐의죠. 에덴 기술을 팔아 방주를 흔들려 했다. 라피를 죽이려 했다.' },
-              { who: 'dorothy', face: 'smile', line: '방주다운 이야기예요. 밖에 남은 자를 버린 곳이니, 벌하는 것도 익숙하겠죠.' },
+              { who: 'dorothy', face: 'smirk', line: '방주다운 이야기예요. 밖에 남은 자를 버린 곳이니, 벌하는 것도 익숙하겠죠.' },
               { who: 'me', line: '넌 정말 그랬어?' },
-              { who: 'dorothy', line: '귀하가 믿고 싶은 대로 믿으세요.' },
+              { who: 'dorothy', face: 'smirk', line: '귀하가 믿고 싶은 대로 믿으세요.' },
               { who: 'me', line: '(대답을 피했다. 아니라고는 하지 않지만, 그렇다고도 하지 않는다.)' },
             ] },
             { topic: '방송 채널', lines: [
               { who: 'dorothy', line: '방송 채널이요? 에덴 광고용으로 받은 작은 채널이에요.' },
-              { who: 'dorothy', face: 'smile', line: '보고 싶으면 기록을 가져가세요. 어차피 아무도 안 보는 방송이니까요.' },
+              { who: 'dorothy', face: 'smirk', line: '보고 싶으면 기록을 가져가세요. 어차피 아무도 안 보는 방송이니까요.' },
               { op: 'give', id: 'e2', line: '…시청률 0.02%.' },
               { who: 'dorothy', face: 'sad', line: '네. 방주는 지상을 보고 싶어 하지 않아요. …저도요.' },
               { who: 'me', line: '(마지막 말은 작게 덧붙였다.)' },
@@ -246,7 +246,7 @@ window.CASE = {
               { who: 'me', line: '왜?' },
               { who: 'dorothy', face: 'sad', line: '……다시 사랑받고 싶었으니까요. 옛 동료들이 다 모이면, 그때처럼.' },
               { op: 'give', id: 'e5', line: '(…도로시가 처음으로 속마음을 말했다.)' },
-              { who: 'dorothy', face: 'angry', line: '지금 한 말은 잊으세요. 법정에서 꺼내면 귀하를 평생 미워할 거예요.' },
+              { who: 'dorothy', face: 'blush', line: '지금 한 말은 잊으세요. 법정에서 꺼내면 귀하를 평생 미워할 거예요.' },
               { who: 'me', line: '(…미안, 도로시. 그 말이 너를 지킬 수도 있어.)' },
             ] },
           ],
@@ -269,7 +269,7 @@ window.CASE = {
     { who: 'prosecutor', face: 'stern', line: '방주를 증오한다고 공언한 자가 방주 안에 방송 채널을 가졌다. 목적은 하나, 선동인 것입니다!' },
     { who: 'prosecutor', line: '둘째, 피고는 라피를 되돌릴 진정제를 쏘아 막고, 라피를 해치려 한 것입니다.' },
     { who: 'judge', line: '피고, 진술하겠습니까?' },
-    { who: 'dorothy', line: '할 말 없어요. 방주가 저를 어떻게 볼지는 처음부터 정해져 있었으니까요.' },
+    { who: 'dorothy', face: 'smirk', line: '할 말 없어요. 방주가 저를 어떻게 볼지는 처음부터 정해져 있었으니까요.' },
     { who: 'me', line: '(…도로시는 스스로를 변호할 생각이 없다. 그러니까 내가 해야 한다.)' },
     { op: 'fx', kind: 'gavel' },
     { who: 'judge', face: 'stern', line: '변호인에게 알립니다. 본 법정은 효율을 중시합니다. 근거 없는 주장을 거듭하면 그 자리에서 심리를 종결하고 판결합니다.' },
@@ -308,7 +308,7 @@ window.CASE = {
       ],
       after: [
         { who: 'prosecutor', face: 'stern', line: '방주를 증오하는 자가 몰래 방주 고위층과 거래했다. 이것이 수상하지 않다면 무엇이 수상한 것입니까!' },
-        { who: 'dorothy', line: '…수상하다고 하면, 수상하겠죠.' },
+        { who: 'dorothy', face: 'smirk', line: '…수상하다고 하면, 수상하겠죠.' },
         { who: 'me', line: '(도로시가 스스로 인정해 버리면 끝이다. 요한이 "생각했다"는 부분이 사실인지 따져 보자.)' },
       ],
       hints: [
@@ -639,7 +639,7 @@ window.CASE = {
     { op: 'fx', kind: 'shake' },
     { op: 'fx', kind: 'murmur' },
     { who: 'me', line: '레드 후드 씨는 피고가 방주에 복수하려고 붙잡았다고 하셨습니다.' },
-    { who: 'dorothy', face: 'angry', line: '귀하, 그만…! 그건 말하지 말라고 했잖아요!' },
+    { who: 'dorothy', face: 'blush', line: '귀하, 그만…! 그건 말하지 말라고 했잖아요!' },
     { who: 'me', line: '죄송합니다, 피고. 그래도 말씀드리겠습니다. 그날 피고가 몸을 돌려주지 말라고 빈 이유는 복수가 아닙니다.' },
     { who: 'me', line: '"다시 사랑받고 싶었으니까." 피고가 직접 한 말입니다!' },
     { op: 'fx', kind: 'flash' },
@@ -687,8 +687,8 @@ window.CASE = {
     { op: 'fx', kind: 'flash' },
     { who: 'judge', line: '본 법정은 피고 도로시에게 제1심 무죄를 선고합니다.' },
     { who: 'prosecutor', face: 'stern', line: '으윽… 명탐정의 관찰이 부족했던 것입니다….' },
-    { who: 'dorothy', line: '…귀하. 법정에서 그 말을 꺼낸 건 용서 못 해요.' },
-    { who: 'dorothy', face: 'smile', line: '…그래도, 고마워요. 조금은요. 라피에게도… 전해 주세요.' },
+    { who: 'dorothy', face: 'blush', line: '…귀하. 법정에서 그 말을 꺼낸 건 용서 못 해요.' },
+    { who: 'dorothy', face: 'blush', line: '…그래도, 고마워요. 조금은요. 라피에게도… 전해 주세요.' },
     { who: 'me', line: '(…도로시가 웃었다. 아주 조금.)' },
     { op: 'fx', kind: 'murmur', text: '웅성웅성…' },
     { who: null, color: '#e0505a', line: '그때, 방청석 맨 뒤에서 누군가 일어섰다. 붉은 베레모, 중앙정부의 제복. 그리고 이마 한가운데에 뚫린 구멍.' },
@@ -866,7 +866,7 @@ window.CASE = {
       ],
       after: [
         { who: 'doban', face: 'smile', line: '방주를 공포에 빠뜨린 방송. 선동이 아니면 뭐겠나.' },
-        { who: 'dorothy', line: '…방주가 무서워했다면, 그것도 방주답네요.' },
+        { who: 'dorothy', face: 'smirk', line: '…방주가 무서워했다면, 그것도 방주답네요.' },
         { who: 'me', line: '(도로시가 또 물러선다. 신고 내용이 정말 "공포"뿐이었는지 확인하자.)' },
       ],
       hints: [
@@ -892,7 +892,7 @@ window.CASE = {
     { who: 'me', line: '시민들이 고마워한 것은 방송이 아니라, 식스오 테러 때 피고가 직접 자신들을 구해 준 일입니다!' },
     { op: 'fx', kind: 'stamp', text: '이의 있다!', color: '#3a5a3a' },
     { who: 'doban', face: 'stern', line: '그럼 구조받았다는 시민을 직접 불러 보지. 그 시민이 방송을 보고 뭘 느꼈는지 들어 보자고!' },
-    { who: 'dorothy', face: 'sad', line: '……고맙다고요? 방주 사람들이, 저한테?' },
+    { who: 'dorothy', face: 'shock', line: '……고맙다고요? 방주 사람들이, 저한테?' },
     { who: 'me', line: '(도로시의 목소리가 흔들렸다. 고맙다는 말 한마디에.)' },
     { op: 'save' },
 
@@ -958,7 +958,7 @@ window.CASE = {
     { op: 'fx', kind: 'stamp', text: '이의 있음!' },
     { who: 'me', line: '그 "니케 따위"가 방송 전날 식스오 테러에서 시민을 구했습니다. 증인이 그 산증인입니다!' },
     { who: 'citizen', face: 'smile', line: '……네. 저를 꺼내 준 사람이, 거짓말을 할 리 없죠. 고맙습니다. 그날, 정말로.' },
-    { who: 'dorothy', face: 'sad', line: '……저는… 그런 말을 들으려고 한 게….' },
+    { who: 'dorothy', face: 'cry', line: '……저는… 그런 말을 들으려고 한 게….' },
     { who: 'me', line: '(도로시가 말을 끝맺지 못했다.)' },
     { op: 'fx', kind: 'gavel' },
     { who: 'judge', line: '공소사실 ③에 대해, 유언비어라는 검찰 주장은 기록과 맞지 않습니다. 다음 공소사실로 넘어갑니다.' },
@@ -1154,7 +1154,7 @@ window.CASE = {
       ],
       after: [
         { who: 'doban', face: 'smile', line: '고인의 입으로 들었다. 이 필그림은 침식된 니케를 쏜다. 과거에도, 이번에도.' },
-        { who: 'dorothy', face: 'sad', line: '……피나. 미안해요.' },
+        { who: 'dorothy', face: 'cry', line: '……피나. 미안해요.' },
         { who: 'me', line: '(피나는 자기를 탓하고 있다. 이번에도 도로시가 쐈을 거라고. …아니라는 걸 보여 줘야 한다.)' },
       ],
       hints: [
@@ -1177,7 +1177,7 @@ window.CASE = {
     { who: 'me', line: '피고는 피나 씨를 닮은 아이들 앞에서, 총을 겨누지도 않았습니다. 그날 이후로 한 번도요!' },
     { op: 'fx', kind: 'flash' },
     { who: 'medium', face: 'sad', line: '……도로시 님. 그날 저를 쏘게 해서, 정말 죄송해요. 그 무거운 걸 도로시 님 혼자 짊어지게 해 버렸어요.' },
-    { who: 'dorothy', face: 'sad', line: '…쏠 수 있을 리가 없잖아요. 당신 얼굴을 하고 있었는데.' },
+    { who: 'dorothy', face: 'cry', line: '…쏠 수 있을 리가 없잖아요. 당신 얼굴을 하고 있었는데.' },
     { who: 'dorothy', face: 'sad', line: '그리고 사과하지 마세요. 부탁한 건 당신이지만, 방아쇠를 당긴 건 저예요.' },
     { who: 'medium', face: 'sad', line: '……그래도, 죄송해요. 그 말은 100년 동안 꼭 하고 싶었어요.' },
     { op: 'fx', kind: 'stamp', text: '이의 있다!', color: '#3a5a3a' },
@@ -1187,7 +1187,7 @@ window.CASE = {
     { op: 'fx', kind: 'stamp', text: '이의 있다!', color: '#3a5a3a' },
     { who: 'doban', face: 'stern', line: '그 신호를 누가 보냈는지 증거를 대 봐라! 대지 못하면 이 재판은 끝이다!' },
     { who: 'medium', face: 'normal', line: '지휘관님. 도로시 님을 부탁해요. …도로시 님, 이번엔 "도와줘요"라고 말해 보세요.' },
-    { who: 'dorothy', face: 'sad', line: '……귀하. …도와줘요.' },
+    { who: 'dorothy', face: 'cry', line: '……귀하. …도와줘요.' },
     { who: 'me', line: '(…처음으로, 도로시가 도와 달라고 했다.)' },
     { op: 'possess', who: 'medium', as: null },
     { who: 'medium', face: 'normal', line: '…어, 왜 다들 우세요?' },
@@ -1246,7 +1246,7 @@ window.CASE = {
     { who: 'judge', line: '공소사실 ③, ④ 모두 입증되지 않았습니다. 본 법정은 피고 도로시에게 제2심 무죄를 선고합니다.' },
     { who: 'neon', face: 'smile', line: '스승님! 해냈어요! 다들 보셨나요? 후후~ 오늘의 화력은 스승님이 최고였어요!' },
     { who: 'poli', face: 'smile', line: '에흉… 다행이에영….' },
-    { who: 'dorothy', face: 'sad', line: '……귀하. 고마워요. 이번엔, 조금이 아니라요.' },
+    { who: 'dorothy', face: 'blush', line: '……귀하. 고마워요. 이번엔, 조금이 아니라요.' },
     { op: 'fx', kind: 'murmur', text: '웅성웅성…' },
     { who: 'burningham', line: '……마, 마지막 질문이… 남았다.' },
     { who: 'burningham', face: 'stern', line: '피고의 정체에 대해서다. 피고는 그저 필그림이 아니다. 100년 전, 방주를 버리고 탈주한 부대의 일원이다.' },
@@ -1275,7 +1275,7 @@ window.CASE = {
     { op: 'fx', kind: 'murmur', text: '…누구지?' },
     { who: null, line: '재판장석에 앉은 사람은 에닉이 아니었다. 검은 두건 아래, 하얀 가면이 얼굴을 모두 가리고 있다.' },
     { who: 'judge', line: '…방주 법정, 제3심을 개정합니다. 이번 심리는 특례에 따라 본인이 맡습니다. 피고 필그림 도로시. 변호인 {name}.' },
-    { who: 'dorothy', line: '…가면이라니. 방주는 끝까지 얼굴을 보이지 않는군요.' },
+    { who: 'dorothy', face: 'smirk', line: '…가면이라니. 방주는 끝까지 얼굴을 보이지 않는군요.' },
     { who: 'judge', line: '…….' },
     { who: 'burningham', line: '주, 중앙정부 부사령관 버닝엄이다. 거, 검사를 맡는다.' },
     { who: 'burningham', face: 'stern', line: '공소사실은 하나다. 100년 전 아크 가디언 작전에서, 한 부대가 방주를 버리고 탈주했다. 공식 기록이다. 그리고 피고는 그 부대의 일원이다.' },
@@ -1358,9 +1358,9 @@ window.CASE = {
     { who: 'me', line: '(…도로시. 여기서 아니라고 하면, 적어도 이 공소사실에서는 벗어날 수 있다.)' },
     { who: 'dorothy', face: 'sad', line: '…………' },
     { op: 'fx', kind: 'flash' },
-    { who: 'dorothy', face: 'angry', line: '부인할 생각, 없어요.' },
+    { who: 'dorothy', face: 'determined', line: '부인할 생각, 없어요.' },
     { who: 'dorothy', line: '100년 동안 저는 필그림이라고만 불렸어요. 이름도 부대도 지워진 채로요. …이제 됐어요.' },
-    { who: 'dorothy', face: 'angry', line: '저는 갓데스 스쿼드 리더 대행, 도로시예요. 방주를 지키다 문 밖에 남겨진 부대의, 마지막 리더.' },
+    { who: 'dorothy', face: 'determined', line: '저는 갓데스 스쿼드 리더 대행, 도로시예요. 방주를 지키다 문 밖에 남겨진 부대의, 마지막 리더.' },
     { op: 'fx', kind: 'shake' },
     { op: 'fx', kind: 'murmur', text: '갓데스… 그 갓데스?!' },
     { who: null, color: '#e8c060', line: '방청석이 술렁였다. 광장의 여신상, 동화 속 승리의 여신. 그 이름이 피고석에서 나왔다.' },
@@ -1411,7 +1411,7 @@ window.CASE = {
           ],
           talk: [
             { topic: '이 문 앞에서', lines: [
-              { who: 'dorothy', line: '버닝엄은 이 기록을 "탈주"라고 읽겠죠. 틀린 말은 아니에요. 저희는 끝내 들어가지 못했으니까.' },
+              { who: 'dorothy', face: 'smirk', line: '버닝엄은 이 기록을 "탈주"라고 읽겠죠. 틀린 말은 아니에요. 저희는 끝내 들어가지 못했으니까.' },
               { who: 'me', line: '들어가지 "못한" 거지, 떠난 게 아니잖아.' },
               { who: 'dorothy', face: 'sad', line: '……방주에는 그 차이가 중요하지 않아요.' },
             ] },
@@ -1577,7 +1577,7 @@ window.CASE = {
       ],
       after: [
         { who: 'burningham', face: 'stern', line: '도, 동료에게도 살기를 품는 자다. 그런 자가 방주를 사랑한다고?' },
-        { who: 'dorothy', line: '…홍련은 늘 과장이 심해요.' },
+        { who: 'dorothy', face: 'smirk', line: '…홍련은 늘 과장이 심해요.' },
         { who: 'me', line: '(살기가 정말 있었다면, 칼집이 아니라 홍련의 몸에 탄흔이 남았을 것이다.)' },
       ],
       hints: [
@@ -1603,7 +1603,7 @@ window.CASE = {
     { who: 'me', line: '일곱 발이 모두 칼에만 맞았습니다. 피고의 사격 실력은, 레드 후드가 "예나 지금이나 정확하다"고 증언했습니다!' },
     { who: 'hongryeon', line: '그 낭자는 내 칼만 노렸던 거로군. 지지 않으려고, 그러나 다치게 하지도 않으려고.' },
     { who: 'hongryeon', face: 'drunk', line: '도로시 낭자. 그날 결투는 무승부로 해 두세. 다음에 다시 하세나.' },
-    { who: 'dorothy', face: 'angry', line: '…다음엔 이길 거예요.' },
+    { who: 'dorothy', face: 'determined', line: '…다음엔 이길 거예요.' },
     { who: 'burningham', face: 'stern', line: '도, 동료끼리 싸운 일은 그렇다 치자. 문제는 방주가 맡긴 임무다. 갓데스는 방주의 부탁을 끝까지 들어주지 않았다. 갓데스의 라푼젤.' },
     { op: 'save' },
 
@@ -1697,7 +1697,7 @@ window.CASE = {
       ],
       after: [
         { who: 'burningham', face: 'stern', line: '방주가 세운 동상조차 외면한 자다. 방주를 사랑할 리 없다.' },
-        { who: 'dorothy', face: 'angry', line: '……그 동상 얘기는 그만하세요.' },
+        { who: 'dorothy', face: 'blush', line: '……그 동상 얘기는 그만하세요.' },
         { who: 'me', line: '(도로시가 화를 냈다. 숨기고 싶은 게 있다는 뜻이다. 3심 전에 받은 CCTV를 떠올리자.)' },
       ],
       hints: [
@@ -1717,7 +1717,7 @@ window.CASE = {
     { who: 'me', line: '증인은 피고가 그 뒤로 여신상에 한 번도 오지 않았다고 했습니다.' },
     { who: 'me', line: '하지만 광장 CCTV를 보십시오. 새벽 4시, 분홍 머리 니케가 여신상을 닦고 있습니다. 순찰이 없는 시간에, 아무도 모르게!' },
     { who: 'poli', face: 'shock', line: '에, 에흉…! 그럼 매일 아침 여신상이 반짝였던 게….' },
-    { who: 'dorothy', face: 'angry', line: '……귀하. 그건 정말, 정말 꺼내지 말았어야 했어요.' },
+    { who: 'dorothy', face: 'blush', line: '……귀하. 그건 정말, 정말 꺼내지 말았어야 했어요.' },
     { op: 'fx', kind: 'stamp', text: '이의 있다!', color: '#3a4a7a' },
     { who: 'burningham', face: 'stern', line: '도, 동상을 닦았다고 방주를 사랑한다는 증거가 되나!' },
     { op: 'fx', kind: 'stamp', text: '이의 있음!' },
@@ -1778,7 +1778,7 @@ window.CASE = {
         gate2: {
           name: '방주 입구', bg: 'coffin', who: 'dorothy', desc: '어제 들른 방주 입구.', move: ['eden'],
           enter: [
-            { who: 'dorothy', line: '…오늘이 마지막이네요, 귀하.' },
+            { who: 'dorothy', face: 'determined', line: '…오늘이 마지막이네요, 귀하.' },
           ],
           spots: [
             { name: '문 아래 새겨진 이름', x: 116, y: 70, w: 120, h: 28, lines: [
@@ -1794,7 +1794,7 @@ window.CASE = {
           talk: [
             { topic: '마지막 날', lines: [
               { who: 'dorothy', face: 'sad', line: '오늘 무죄가 나와도, 기록이 바뀌어도… 피나는 돌아오지 않아요.' },
-              { who: 'dorothy', line: '그래도 귀하가 여기까지 끌고 왔으니까요. 끝까지 서 있을게요.' },
+              { who: 'dorothy', face: 'determined', line: '그래도 귀하가 여기까지 끌고 왔으니까요. 끝까지 서 있을게요.' },
             ] },
           ],
         },
@@ -1964,7 +1964,7 @@ window.CASE = {
     { who: 'burningham', face: 'stern', line: '……좋다. 탈주가 거짓 보고였다는 건 인정하지. 하지만 공소사실은 하나 더 남았다.' },
     { who: 'burningham', face: 'stern', line: '피고는 지금도 방주를 증오한다. 피고 본인의 입으로 듣겠다. 피고인 신문을 요청한다.' },
     { who: 'judge', line: '…허가합니다. 피고는 증언대로 나오십시오.' },
-    { who: 'dorothy', line: '……좋아요. 제 입으로 말하죠.' },
+    { who: 'dorothy', face: 'determined', line: '……좋아요. 제 입으로 말하죠.' },
     { op: 'save' },
 
     // 피고인 신문: 도로시가 스스로를 "증오"로 몰아간다. 피고 자신의 말을 증거로 뒤집는다
@@ -1979,12 +1979,12 @@ window.CASE = {
         { face: 'sad', line: '피나를 쏜 날, 방주에 복수하기로 했어요.',
           press: [
             { who: 'me', line: '그 다짐은 지금도 그대로입니까?' },
-            { who: 'dorothy', line: '…그대로라고 말하고 있잖아요.' },
+            { who: 'dorothy', face: 'smirk', line: '…그대로라고 말하고 있잖아요.' },
           ] },
         { face: 'angry', line: '에덴을 세운 것도, 방주와 거래한 것도, 다 복수를 위해서였어요.',
           press: [
             { who: 'me', line: '에덴을 세운 것도 복수를 위해서였다고요?' },
-            { who: 'dorothy', face: 'angry', line: '네. 방주보다 나은 낙원을 보여 주면, 방주는 부끄러워하겠죠. 그게 제 복수예요.' },
+            { who: 'dorothy', face: 'smirk', line: '네. 방주보다 나은 낙원을 보여 주면, 방주는 부끄러워하겠죠. 그게 제 복수예요.' },
             { op: 'fx', kind: 'stamp', text: '이의 있다!', color: '#3a4a7a' },
             { who: 'burningham', face: 'stern', line: '피, 피고 본인이 인정했다. 에덴은 복수의 도구였다.' },
             { who: 'me', line: '(…방주보다 나은 낙원. 에덴의 창립 문서에는, 마지막 줄이 하나 더 있었다.)' },
@@ -2006,7 +2006,7 @@ window.CASE = {
         '(세 번째 증언이다. 에덴 창립 문서의 마지막 줄을 보여 주자.)',
       ],
       wrong: [
-        { who: 'dorothy', face: 'angry', line: '귀하, 그런 걸로 저를 설득할 수 있다고 생각했어요?' },
+        { who: 'dorothy', face: 'smirk', line: '귀하, 그런 걸로 저를 설득할 수 있다고 생각했어요?' },
         { who: 'judge', face: 'stern', line: '관련성을 확인할 수 없습니다. 주의하십시오.' },
       ],
     },
@@ -2054,7 +2054,7 @@ window.CASE = {
     { who: 'me', line: '그 바람은 100년 동안 변하지 않았습니다. 피고가 증오라고 부른 것은, 끝내 돌려받지 못한 사랑입니다!' },
     { op: 'fx', kind: 'shake' },
     { who: 'dorothy', face: 'sad', line: '………….' },
-    { who: 'dorothy', face: 'sad', line: '…다시, 사랑받고 싶었어요. 그날도, 지금도.' },
+    { who: 'dorothy', face: 'cry', line: '…다시, 사랑받고 싶었어요. 그날도, 지금도.' },
     { op: 'fx', kind: 'murmur', text: '……' },
     { who: 'burningham', line: '……됐다.' },
     { who: 'burningham', face: 'smile', line: '검찰은 공소를 취하한다. …아니, 이렇게 말하지. 검찰은 이 판결을 기다리고 있었다.' },
@@ -2076,7 +2076,7 @@ window.CASE = {
     { who: 'judge', face: 'sad', line: '오랜만이다, 도로시. 돌아가면 보상하겠다던 약속, 100년이 넘도록 지키지 못했구나.' },
     { who: 'judge', face: 'sad', line: '너를 만나면, 방주에 복수하자는 네 말에 넘어갈까 봐 두려웠다. 그래서 도망쳤지. 그게 내 죄다.' },
     { who: 'judge', line: '이번 재판은 얼굴을 보이면 공정할 수 없었어. 그리고 그 기록만큼은, 내 손으로 판결해서 고치고 싶었다.' },
-    { who: 'dorothy', face: 'angry', line: '……늦었어요. 너무, 너무 늦었어요.' },
+    { who: 'dorothy', face: 'cry', line: '……늦었어요. 너무, 너무 늦었어요.' },
     { who: 'dorothy', face: 'sad', line: '…피나 무덤에 메리골드를 둔 것도, 당신이죠.' },
     { who: 'judge', face: 'smile', line: '그 아이가 좋아했다고 들었다. 네 차와 같은 꽃이라.' },
     { who: 'dorothy', face: 'sad', line: '……차는, 받을게요. 용서는 아직이에요.' },
@@ -2099,7 +2099,7 @@ window.CASE = {
     { who: 'burningham', line: '방주를 위해 싸워 준, 갓데스 스쿼드에게 감사를.' },
     { who: null, color: '#e8c060', line: '버닝엄은 오래도록 경례한 채 서 있었다. 100년 전, 문 너머의 누군가가 하지 못한 경례였다.' },
     { who: 'dorothy', line: '…………' },
-    { who: 'dorothy', line: '…그 말을, 100년 동안 기다렸어요. 문 너머에서 들려오기를.' },
+    { who: 'dorothy', face: 'cry', line: '…그 말을, 100년 동안 기다렸어요. 문 너머에서 들려오기를.' },
     { who: 'me', line: '(문 밖에서 나는 그 장면을 지켜보았다. 도로시는 끝까지 고개를 들고 있었다.)' },
     { op: 'hide' },
 
@@ -2109,9 +2109,9 @@ window.CASE = {
     { op: 'alias', who: 'dorothy', portrait: 'dorothy_alt', name: '도로시' },
     { who: null, line: '며칠 뒤, 중앙정부 광장. 방주는 처음으로 갓데스 스쿼드를 정식으로 맞이했다.' },
     { who: null, line: '여신상 앞에 꽃이 가득하다. 그 사이에, 낯선 흰 드레스를 입은 도로시가 서 있다.' },
-    { who: 'dorothy', face: 'normal', line: '…이상하죠. 방주에서 저를 위해 옷을 맞춰 준 건 처음이에요.' },
+    { who: 'dorothy', face: 'blush', line: '…이상하죠. 방주에서 저를 위해 옷을 맞춰 준 건 처음이에요.' },
     { who: 'me', line: '잘 어울려.' },
-    { who: 'dorothy', face: 'smile', line: '……귀하는 언제나 대답이 짧네요.' },
+    { who: 'dorothy', face: 'blush', line: '……귀하는 언제나 대답이 짧네요.' },
     { who: 'anis', face: 'smile', line: '지휘관님, 도로시! 사진 찍자, 사진!' },
     { who: 'neon', face: 'smile', line: '스승님! 오늘의 화력은 꽃이에요! 후후~' },
     { who: 'arcana', face: 'smile', line: '그쪽, 오늘 운세는 대길이에요. …제가 그렇게 정했거든요. 다음엔 금서고로 놀러 와요. 꼭이요.' },
@@ -2130,9 +2130,9 @@ window.CASE = {
     { who: null, color: '#e8c060', line: '여신상 앞에서 누군가 손을 들어 경례했다. 그날 아침 갱생관 문가의 버닝엄처럼.' },
     { op: 'fx', kind: 'murmur', text: '감사를…!' },
     { who: null, line: '광장의 시민들이, 니케들이, 하나둘 따라 손을 들었다.' },
-    { who: 'dorothy', face: 'sad', line: '……' },
+    { who: 'dorothy', face: 'cry', line: '……' },
     { who: 'dorothy', face: 'smile', line: '…귀하. 레드 후드가 남긴 말, 기억해요? "네가 먼저 사랑해."' },
-    { who: 'dorothy', face: 'smile', line: '이번엔… 제가 먼저 해 볼게요. 방주를, 조금씩.' },
+    { who: 'dorothy', face: 'blush', line: '이번엔… 제가 먼저 해 볼게요. 방주를, 조금씩.' },
     { who: 'me', line: '(승리의 여신이, 웃었다.)' },
     { op: 'hide' },
 
@@ -2156,12 +2156,12 @@ window.CASE = {
     { who: 'rapunzel', line: '릴리스 언니가 여기 있었으면, 분명 "아이들아, 싸우지 말고 마시렴" 했겠죠.' },
     { who: 'snowwhite', line: '레드 후드는 오래된 노래를 틀었을 거다.' },
     { who: 'hongryeon', line: '그리고 낭자를 "아가씨"라 불러 또 화나게 했겠지. 허허.' },
-    { who: 'dorothy', face: 'sad', line: '……피나도요. 요리는 못하면서, 제 몫은 꼭 남겨 뒀을 거예요.' },
+    { who: 'dorothy', face: 'cry', line: '……피나도요. 요리는 못하면서, 제 몫은 꼭 남겨 뒀을 거예요.' },
     { who: null, line: '잠시, 아무도 말하지 않았다. 빈 잔 두 개 위로 차 향이 흘렀다.' },
     { who: 'andersen', line: '…돌아왔구나, 갓데스 스쿼드. 늦게 맞이해서 미안하다.' },
     { who: 'andersen', face: 'smile', line: '그리고 자네. 이 아이들을 다시 방주로 데려와 줘서 고맙네. 자네 덕분일세.' },
     { who: 'me', line: '저는 변론했을 뿐입니다. 증거를 남긴 건, 이분들이 100년 동안 해 온 일이에요.' },
-    { who: 'dorothy', face: 'smile', line: '…귀하는 끝까지 그렇게 말하네요. 그러니까, 다음 주에도 오세요. 귀하 몫의 잔도 놓아 둘게요.' },
+    { who: 'dorothy', face: 'blush', line: '…귀하는 끝까지 그렇게 말하네요. 그러니까, 다음 주에도 오세요. 귀하 몫의 잔도 놓아 둘게요.' },
     { who: 'me', line: '(빈자리였던 탁자에, 찻잔이 하나 늘었다.)' },
     { op: 'hide' },
     { op: 'end', result: 'win', title: '제3심 무죄', text: '방주를 위해 싸워 준 갓데스 스쿼드에게 감사를. — 끝 —' },

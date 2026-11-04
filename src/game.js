@@ -381,6 +381,9 @@
   ];
   const FIND_LINES = ['(…이건 증거가 될 것 같다. 챙겨 두자.)', '(이것도 챙겨 두자. 법정에서 쓸 수 있을지도 모른다.)', '(좋아, 하나 더 찾았다.)'];
   try { S.saved = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null'); } catch (e) { S.saved = null; }
+  // 수동 저장 3칸: 자동 저장(이어하기)과 따로 둔다. 대본이 바뀌면 pc가 어긋나므로 같은 대본 해시만 읽는다
+  const SLOTS = 3, slotKey = (i) => `${GAME}.slot${i + 1}.v1.${scriptHash}`;
+  S.slots = Array.from({ length: SLOTS }, (_, i) => { try { return JSON.parse(localStorage.getItem(slotKey(i)) || 'null'); } catch (e) { return null; } });
 
   // ───────── 진행기: 명령을 차례로 실행하다가 입력을 기다리는 명령에서 멈춘다 ─────────
   function step() {
@@ -668,6 +671,50 @@
     S.saved = snapshot();
     try { localStorage.setItem(SAVE_KEY, JSON.stringify(S.saved)); } catch (e) { /* 저장소를 못 쓰면 이번 판에서만 기억 */ }
   }
+  // 수동 저장: 지금 보고 있는 대사·증언·선택지를 불러온 뒤 다시 보여 주도록 pc를 한 칸 되돌린다(조사 중이면 begin이 처리)
+  function canSlotSave() { return S.scene === 'play' && !S.overlay && !S.logView && ['line', 'cross', 'choice', 'inv', 'chapter', 'testTitle'].includes(S.mode); }
+  function trialOf(pc) {
+    let cur = null;
+    (CASE.trials || []).forEach((t) => { const at = labels.get(t.label); if (at !== undefined && at <= pc) cur = t; });
+    return cur ? cur.title : '';
+  }
+  function saveSlot(i) {
+    const snap = snapshot();
+    if (!snap.inv && S.mode !== 'idle') snap.pc = Math.max(0, snap.pc - 1);
+    snap.when = Date.now(); snap.where = trialOf(snap.pc);
+    S.slots[i] = snap;
+    try { localStorage.setItem(slotKey(i), JSON.stringify(snap)); } catch (e) { /* 저장소를 못 쓰면 이번 판에서만 기억 */ }
+    S.slotView = null; S.toast = { t: 1.6, text: `${i + 1}번 칸에 저장했습니다` }; SFX.ok();
+  }
+  function loadSlot(i) {
+    const snap = S.slots[i];
+    if (!snap) return;
+    S.slotView = null; SFX.select();
+    begin(snap);
+  }
+  function openSlots(mode) {
+    if (mode === 'save' && !canSlotSave()) return;
+    S.slotView = { mode, sel: 0, from: S.slotView && S.slotView.mode === 'menu' ? 'menu' : null }; SFX.select();
+  }
+  // 게임 중 메뉴: 저장하기 · 불러오기 · 타이틀로 · 닫기
+  function openMenu() {
+    if (S.scene !== 'play' || S.overlay || S.logView || S.slotView) return;
+    S.slotView = { mode: 'menu', sel: 0 }; SFX.select();
+  }
+  const MENU = [
+    ['저장하기', () => openSlots('save'), () => canSlotSave()],
+    ['불러오기', () => openSlots('load'), () => true],
+    ['타이틀로', () => { S.slotView = { mode: 'quit', sel: 0 }; SFX.select(); }, () => true],
+    ['닫기', () => { S.slotView = null; }, () => true],
+  ];
+  function slotBack() { S.slotView = S.slotView && S.slotView.from === 'menu' ? { mode: 'menu', sel: 0 } : null; }
+  function quitToTitle() { S.slotView = null; S.logView = null; S.overlay = null; SFX.select(); toTitle(); }
+  function slotLabel(i) {
+    const s = S.slots[i];
+    if (!s) return `${i + 1}번 칸 · 비어 있음`;
+    const d = new Date(s.when || 0), z = (n) => String(n).padStart(2, '0');
+    return `${i + 1}번 칸 · ${s.where || '처음'} · ${s.name || ''} · ${z(d.getMonth() + 1)}/${z(d.getDate())} ${z(d.getHours())}:${z(d.getMinutes())}`;
+  }
   function clearSave() {
     S.saved = null;
     try { localStorage.removeItem(SAVE_KEY); } catch (e) { /* 무시 */ }
@@ -683,7 +730,7 @@
     S.ev = from ? [...from.ev] : [...(CASE.startEvidence || [])];
     S.patience = MAX_PATIENCE; // 이어하기·다시하기 모두 하트를 채워서 시작
     S.stats = from && from.stats ? { ...from.stats } : { wrongs: 0, hints: 0, overs: 0, sec: 0 };
-    S.choice = null; S.logView = null; S.fx.murmur = null;
+    S.choice = null; S.logView = null; S.slotView = null; S.fx.murmur = null;
     if (!from) S.log = [];
     S.hinted = from ? !!from.hinted : false;
     S.bg = (from && from.bg) || 'court';
@@ -734,7 +781,7 @@
     confirm();
   });
   function confirm() {
-    if (S.scene !== 'play' || S.overlay || S.logView || S.mode === 'choice') return;
+    if (S.scene !== 'play' || S.overlay || S.logView || S.slotView || S.mode === 'choice') return;
     if (S.mode === 'line') advanceLine();
     else if (S.mode === 'chapter') { S.chapter = null; S.mode = 'idle'; step(); }
     else if (S.mode === 'testTitle') { S.testTitle = null; S.mode = 'idle'; afterTestTitle(); }
@@ -779,7 +826,26 @@
     const k = e.key;
     if (k === 'm' || k === 'M') { toggleMute(); return; }
     if (k === 'f' || k === 'F') { toggleSpeed(); return; }
+    if (S.slotView && (S.slotView.mode === 'menu' || S.slotView.mode === 'quit')) {
+      const v = S.slotView, items = v.mode === 'menu' ? MENU.filter((m) => m[2]()) : [['돌아가기', quitToTitle], ['취소', () => { S.slotView = { mode: 'menu', sel: 0 }; }]];
+      if (k === 'ArrowUp' || k === 'ArrowLeft') { v.sel = (v.sel + items.length - 1) % items.length; SFX.select(); }
+      else if (k === 'ArrowDown' || k === 'ArrowRight') { v.sel = (v.sel + 1) % items.length; SFX.select(); }
+      else if (k === 'Enter' || k === ' ') items[v.sel][1]();
+      else if (k === 'Escape' || k === 'x' || k === 'X') { if (v.mode === 'quit') S.slotView = { mode: 'menu', sel: 0 }; else S.slotView = null; }
+      e.preventDefault(); return;
+    }
+    if (S.slotView) {
+      const v = S.slotView, n = Number(k) - 1;
+      if (n >= 0 && n < SLOTS) { if (v.mode === 'save') saveSlot(n); else loadSlot(n); }
+      else if (k === 'ArrowUp') { v.sel = (v.sel + SLOTS - 1) % SLOTS; SFX.select(); }
+      else if (k === 'ArrowDown') { v.sel = (v.sel + 1) % SLOTS; SFX.select(); }
+      else if (k === 'Enter' || k === ' ') { if (v.mode === 'save') saveSlot(v.sel); else loadSlot(v.sel); }
+      else if ((k === 'ArrowLeft' || k === 'ArrowRight' || k === 'Tab') && S.scene === 'play' && canSlotSave()) { v.mode = v.mode === 'save' ? 'load' : 'save'; SFX.select(); }
+      else if (k === 'Escape' || k === 'x' || k === 'X' || k === 's' || k === 'S') slotBack();
+      e.preventDefault(); return;
+    }
     if (S.scene === 'title') {
+      if (k === 'l' || k === 'L') { openSlots('load'); e.preventDefault(); return; }
       if ((k === 'ArrowUp' || k === 'ArrowDown') && S.saved) { titleSel = 1 - titleSel; SFX.select(); }
       else if (k === 'Enter' || k === ' ') { if (titleSel === 1 && S.saved) begin(S.saved); else startNew(); }
       e.preventDefault();
@@ -797,6 +863,9 @@
       e.preventDefault(); return;
     }
     if (k === 'l' || k === 'L') { openLog(); return; }
+    if (k === 's' || k === 'S') { openSlots('save'); return; }
+    // Esc = 메뉴(조사의 하위 메뉴·증거창처럼 Esc로 닫는 화면이 없을 때만)
+    if (k === 'Escape' && !(S.mode === 'inv' && S.inv && S.inv.menu !== 'main')) { openMenu(); e.preventDefault(); return; }
     if (S.mode === 'choice') {
       const n = S.choice.op.options.length;
       if (k === 'ArrowUp') { S.choice.sel = (S.choice.sel - 1 + n) % n; SFX.select(); }
@@ -1038,9 +1107,10 @@
       const blink = S.patience === 1 && Math.floor(S.t * 4) % 2;
       HEART.forEach((row, y) => [...row].forEach((v, x) => { if (v === '1') rect(ox + x, oy + y, 1, 1, on ? (blink ? COL.gold : COL.red) : '#3a3040'); }));
     }
-    if (S.patience === 1) { const w = tw('종결 경고', true) + 8; rect(58, 3, w, 14, COL.red); text('종결 경고', 62, 3, COL.text, { bold: true }); }
+    if (S.patience === 1) { const w = tw('종결 경고', true) + 8; rect(55, 3, w, 14, COL.red); text('종결 경고', 59, 3, COL.text, { bold: true }); }
     const can = S.mode === 'line' || S.mode === 'cross' || S.mode === 'inv';
-    button(132, 3, 70, 16, keyHint('대사 기록', 'L'), openLog, { off: !!S.overlay || !S.log.length });
+    button(113, 3, 40, 16, '메뉴', openMenu, { off: !!S.overlay || !!S.slotView });
+    button(157, 3, 45, 16, keyHint('기록', 'L'), openLog, { off: !!S.overlay || !S.log.length });
     button(206, 3, 56, 16, keyHint(`${speed}배속`, 'F'), toggleSpeed, { off: !!S.overlay });
     button(266, 3, 50, 16, keyHint('증거', 'E'), () => openOverlay(S.mode === 'cross' ? 'cross' : 'view'), { off: !can || !!S.overlay });
     if (S.inv) {
@@ -1233,6 +1303,7 @@
     const hasSkins = Object.keys(CASE.variants || {}).length > 0;
     const row = [[sound, toggleMute]];
     if (hasSkins) row.push(['의상', () => { S.scene = 'skins'; }]);
+    row.push(['불러오기', () => openSlots('load')]);
     if ((CASE.trials || []).length) row.push(['심 선택', () => { S.scene = 'select'; SFX.select(); }]);
     if (canFull && !isFull()) row.push(['전체 화면', goFull]);
     const bw = 64, gap = 10, x0 = Math.round(160 - (row.length * bw + (row.length - 1) * gap) / 2);
@@ -1276,6 +1347,40 @@
     const n = c.op.options.length, gap = n > 2 ? 14 : 20, bh = n > 2 ? 13 : 18;
     c.op.options.forEach((o, i) => button(16, 133 + i * gap, 288, bh, o.label, () => choose(i), { sel: c.sel === i && pointer.x < 0 }));
   }
+  function drawSlots() {
+    const v = S.slotView, saving = v.mode === 'save';
+    rect(0, 0, W, H, 'rgba(7,6,12,0.85)');
+    if (v.mode === 'menu') {
+      frameBox(90, 30, 140, 120);
+      text('메뉴', 160, 36, COL.gold, { bold: true, align: 'center' });
+      const items = MENU.filter((m) => m[2]());
+      MENU.forEach(([label, fn, ok], i) => {
+        const j = items.findIndex((m) => m[0] === label);
+        button(110, 56 + i * 22, 100, 18, label, fn, { off: !ok(), sel: j === v.sel && pointer.x < 0 });
+      });
+      return;
+    }
+    if (v.mode === 'quit') {
+      frameBox(40, 50, 240, 80);
+      text('타이틀 화면으로 돌아갈까요?', 160, 58, COL.gold, { bold: true, align: 'center' });
+      text('3칸에 저장하지 않은 진행은 마지막 자동 저장(이어하기)부터 다시 합니다.', 160, 78, COL.dim, { align: 'center', scale: 10 / 12 });
+      button(84, 102, 70, 18, '돌아가기', quitToTitle, { sel: v.sel === 0 && pointer.x < 0 });
+      button(166, 102, 70, 18, '취소', () => { S.slotView = { mode: 'menu', sel: 0 }; }, { sel: v.sel === 1 && pointer.x < 0 });
+      return;
+    }
+    frameBox(20, 20, 280, 140);
+    text(saving ? '저장하기' : '불러오기', 30, 25, COL.gold, { bold: true });
+    // 플레이 중에는 저장·불러오기를 오갈 수 있다
+    if (S.scene === 'play' && canSlotSave()) {
+      button(182, 24, 50, 16, '저장', () => { v.mode = 'save'; }, { sel: saving });
+      button(236, 24, 56, 16, '불러오기', () => { v.mode = 'load'; }, { sel: !saving });
+    }
+    for (let i = 0; i < SLOTS; i++) {
+      button(30, 46 + i * 26, 260, 22, slotLabel(i), () => (saving ? saveSlot(i) : loadSlot(i)), { off: !saving && !S.slots[i], sel: v.sel === i && pointer.x < 0 });
+    }
+    text(saving ? '같은 칸에 저장하면 덮어씁니다.' : '불러오면 지금 진행은 저장하지 않은 채 바뀝니다.', 30, 126, COL.dim, { scale: 10 / 12 });
+    button(244, 138, 46, 16, v.from === 'menu' ? '뒤로' : '닫기', slotBack);
+  }
   function drawLog() {
     rect(0, 0, W, H, 'rgba(7,6,12,0.85)');
     frameBox(12, 8, 296, 164);
@@ -1301,7 +1406,8 @@
     rect(0, 0, W, H, COL.night);
     text('심 선택', 160, 10, COL.gold, { align: 'center', bold: true, scale: 1.5 });
     text('고른 심의 처음부터 시작합니다. 증거는 그 심에서 새로 모읍니다.', 160, 36, COL.dim, { align: 'center', scale: 10 / 12 });
-    CASE.trials.forEach((t, i) => button(60, 50 + i * 24, 200, 20, `${t.title} 「${t.sub}」`, () => startNew(t.label)));
+    const n = CASE.trials.length, gap = Math.min(24, Math.floor(96 / n)), bh = Math.min(20, gap - 3);
+    CASE.trials.forEach((t, i) => button(60, 50 + i * gap, 200, bh, `${t.title} 「${t.sub}」`, () => startNew(t.label)));
     button(120, 152, 80, 18, '돌아가기', () => { S.scene = 'title'; SFX.select(); });
   }
   function drawSkins() {
@@ -1334,7 +1440,7 @@
     B = [];
     g.setTransform(RES, 0, 0, RES, 0, 0);
     if (portraitHeld()) drawRotate();
-    else if (S.scene === 'title') drawTitle();
+    else if (S.scene === 'title') { drawTitle(); if (S.slotView) { B = []; drawSlots(); } }
     else if (S.scene === 'skins') drawSkins();
     else if (S.scene === 'select') drawSelect();
     else if (S.scene === 'over') drawOver();
@@ -1359,6 +1465,7 @@
       if (S.overlay) { B = []; drawOverlay(); }
       if (S.mode === 'stamp' && S.fx.stamp) { B = []; drawStamp(); }
       if (S.logView) { B = []; drawLog(); }
+      if (S.slotView) { B = []; drawSlots(); }
     }
     if (S.toast) { frameBox(90, 150, 140, 20); text(S.toast.text, 160, 153, COL.gold, { align: 'center' }); }
     if (S.fx.flash > 0) rect(0, 0, W, H, `rgba(255,255,255,${S.fx.flash.toFixed(2)})`);

@@ -30,8 +30,8 @@ CREDITS_PER_IMAGE = 11               # gpt-image-2.5-sunburst 실측(2026-10-04)
 # 시나리오(data/case1.js)에서 쓰는 표정만
 FACES = {
     # 나유타 재판에서 가져온 초상(judge·prosecutor·snowwhite·hongryeon·johan·anis…)은 여기 두지 않는다 — 다시 만들지 않게
-    "dorothy": ["normal", "smile", "angry", "sad"],  # 피고. 귀족적 존댓말, 겉은 복수심·속은 방주를 사랑함
-    "dorothy_alt": ["normal", "smile", "sad"],      # 도로시 최신 이격(미출시, 사용자 제공 그림) — 3심 엔딩에서 alias로 바꿈
+    "dorothy": ["normal", "smile", "angry", "sad", "shock", "blush", "cry", "smirk", "determined"],  # 피고. 귀족적 존댓말, 겉은 복수심·속은 방주를 사랑함
+    "dorothy_alt": ["normal", "smile", "sad", "blush", "cry"],      # 도로시 최신 이격(미출시, 사용자 제공 그림) — 3심 엔딩에서 alias로 바꿈
     "medium": ["normal", "trance"],                  # 영매 = 양산형 니케(Product 08)
     # 빙의 모습: 옷은 영매(medium) 그대로, 얼굴·머리·체형만 그 인물. 참고 = medium_normal + <인물>.png
     "medium_redhood": ["normal", "smile", "sad"],
@@ -46,6 +46,7 @@ FACES = {
     "andersen": ["normal", "smile", "sad"],          # 3심 재판장 엔더슨(판결 뒤 얼굴을 드러냄)
     "andersen_hidden": ["normal"],                   # 얼굴을 가린 3심 재판장. 참고 = andersen.png + BASE_EXTRA
     "medium_oswald": ["normal", "sad"],              # 빙의한 오스왈드(영매 옷 + 오스왈드 얼굴·체형)
+    "rapunzel": ["normal", "smile", "sad"],         # 3심 증인, 갓데스. 기본형(사용자 지정: 이격 아님). 지휘관 "형제님", 니케 "자매님"
     "arcana": ["normal", "smile", "shock", "blush"],  # 3심 첫 증인, 금서고 사서. 이격 「포츈 메이트」. blush = 지휘관을 보며 볼이 발그레
 }
 FACE_DESC = {
@@ -58,6 +59,9 @@ FACE_DESC = {
     "confident": "confident smirk, determined sharp eyes, slight smile",
     "angry": "angry expression, furrowed brows, glaring eyes, gritted teeth",
     "blush": "deeply blushing with rosy pink cheeks, shy lovestruck gaze looking slightly to the side at someone, small happy smile",
+    "cry": "eyes brimming with tears, tears running down the cheeks, trembling lips, sorrowful but holding back",
+    "smirk": "cold elegant smirk, half-closed eyes looking down on someone, one corner of the mouth raised, eyes not smiling",
+    "determined": "resolute determined expression, steady fierce gaze straight ahead, lips firmly closed, chin raised",
     "trance": "eyes closed in a trance, faint purple glow around the head, calm face",
     "open": "eyes opened, bright glowing light sky-blue irises with a white star-shaped highlight, serious determined look",
 }
