@@ -37,6 +37,12 @@ FACES = {
     "medium_redhood": ["normal", "smile", "sad"],
     "rapi": ["normal", "stern", "sad"],              # 카운터스. 1심 피해자 증인, 프롤로그에서 변호를 권함
     "neon": ["normal", "smile", "shock"],            # 카운터스. 1심 증인(채널 협상)
+    "poli": ["normal", "smile", "shock"],            # A.C.P.U. 리더. 2심 증인
+    "miranda": ["normal", "smile", "shock"],         # A.C.P.U. 감찰관. 2심 증인
+    "doban": ["normal", "smile", "shock"],           # 2심 검사(중간보스). smile = 비웃음. 그림 없이 글 묘사(TEXT_DESC)
+    "burningham": ["normal", "stern", "smile"],      # 3심 검사(최종). 글 묘사
+    "citizen": ["normal", "smile", "sad"],           # 2심 시민 증인. 글 묘사
+    "medium_fina": ["normal", "sad"],                # 빙의한 피나(영매 옷 + 피나 얼굴). 참고 = medium_normal + fina.png
 }
 FACE_DESC = {
     "normal": "calm, neutral expression",
@@ -67,11 +73,27 @@ def prompt_variant(face):
             f"and same colors. Only change the facial expression to: {FACE_DESC[face]}. " + STYLE)
 
 
-def prompt_possessed(face):
+# 참고 그림이 없는 인물(인간 NPC): 글 묘사로 기본 초상을 만든다(나무위키 본문 묘사 참고)
+TEXT_DESC = {
+    "doban": "a burly middle-aged human male military officer with bulging muscles, a bushy dark beard and a dark beret, heavy armor plates and combat gear over a dark gray-green military uniform, a cold arrogant look",
+    "burningham": "an obese middle-aged human man with a round face and a bowl-cut dark hairstyle, wearing a dark navy military officer uniform with gold epaulettes and a few medals, a futuristic government army deputy commander",
+    "citizen": "an ordinary young adult civilian man of a futuristic underground city, short brown hair, casual hoodie under a work jacket, eyes hidden behind a dark narrow visor band, friendly face",
+}
+# 빙의 모습에 덧붙일 설명
+POSSESS_EXTRA = {
+    "medium_fina": "Image 2's face is hidden by a visor; draw her face without the visor: a gentle young woman with soft light-brown hair and kind eyes, wearing a simple pendant necklace.",
+}
+
+
+def prompt_text(cid, face):
+    return (f"Pixel art character portrait of {TEXT_DESC[cid]}. Expression: {FACE_DESC[face]}. " + STYLE)
+
+
+def prompt_possessed(face, cid=""):
     return ("Image 1 is a pixel art portrait of a soldier android. Image 2 is another character. "
             "Draw a new pixel art portrait: keep the exact outfit, armor and colors of image 1 (remove the helmet), "
             "but give the person the face, hair, hair color, eye color, horns or hair accessories and body shape of image 2. "
-            f"Expression: {FACE_DESC[face]}. " + STYLE)
+            + POSSESS_EXTRA.get(cid, "") + f" Expression: {FACE_DESC[face]}. " + STYLE)
 
 
 def find_ref(ref_dir, cid):
@@ -152,7 +174,7 @@ def main():
     for cid in chars:
         # 빙의 모습(medium_<인물>)은 그 인물의 원본 그림을 참고로 쓴다
         ref = find_ref(a.ref_dir, cid.split("_", 1)[1] if cid.startswith("medium_") else cid)
-        if not ref:
+        if not ref and cid not in TEXT_DESC:
             missing.append(cid); continue
         for face in FACES[cid]:
             if a.force or not (RAW / f"{cid}_{face}.png").exists():
@@ -161,7 +183,7 @@ def main():
         print(f"원본 그림 없음 (건너뜀): {', '.join(missing)} — {a.ref_dir}/<id>.png 로 넣어 주세요")
     print(f"생성할 그림 {len(todo)}장, 예상 크레딧 약 {len(todo) * CREDITS_PER_IMAGE}")
     for cid, face, ref in todo:
-        print(f"  - {cid}_{face}  (참고: {ref.name if face == 'normal' else cid + '_normal'})")
+        print(f"  - {cid}_{face}  (참고: {(ref.name if ref else '글 묘사') if face == 'normal' else cid + '_normal'})")
     if a.plan or not todo:
         return 0
 
@@ -170,7 +192,9 @@ def main():
         raw = RAW / f"{cid}_{face}.png"
         if cid.startswith("medium_") and face == "normal":
             base = RAW / "medium_normal.png"
-            ok = base.exists() and generate(prompt_possessed(face), [base, ref], raw)
+            ok = base.exists() and generate(prompt_possessed(face, cid), [base, ref], raw)
+        elif face == "normal" and not ref:
+            ok = generate(prompt_text(cid, face), [], raw)
         elif face == "normal":
             ok = generate(prompt_base(face), [ref], raw)
         else:

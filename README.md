@@ -10,7 +10,7 @@
 
 제작: 닥터야돈 · 피드백: globalchmist@naver.com
 
-지금 들어 있는 것: 제1심 「사랑받지 못한 채널」(갱생관 조사 + 재판, 영매 빙의). 2심 「도반의 법정」, 3심(버닝엄·재판장 앤더슨)은 만드는 중.
+지금 들어 있는 것: 제1심 「사랑받지 못한 채널」(갱생관 조사, 영매 레드 후드) → 제2심 「도반의 법정」(광장·A.C.P.U. 본부 조사, 영매 피나). 3심 「승리의 여신에게」(검사 버닝엄·재판장 엔더슨)는 만드는 중.
 
 ## 실행
 
@@ -68,7 +68,12 @@ PNG 파일을 아래 이름으로 넣으면 게임이 32색 도트 그림으로 
 | `dorothy` | 피고 도로시 | normal, smile, angry, sad |
 | `medium` | 영매(양산형 니케 Product 08) | normal, trance |
 | `medium_redhood` | 빙의한 레드 후드(영매 옷 + 레드 후드 얼굴·체형) | normal, smile, sad |
-| `johan` · `anis` | 1심 증인 요한·아니스 (가져옴) | normal + 2표정 |
+| `johan` | 1심 증인 요한 (가져옴) | normal, stern, shock |
+| `rapi` · `anis` · `neon` | 카운터스 — 최신 이격(라피: 레드 후드, 아니스: 스타, 네온: 비전 아이) | 각 3표정 |
+| `doban` · `burningham` | 2심 검사 도반, 3심 검사 버닝엄 | 각 3표정 |
+| `poli` · `miranda` · `citizen` | 2심 증인 폴리·미란다·방주 시민 | 각 3표정 |
+| `medium_fina` | 빙의한 피나 | normal, sad |
+| `dorothy_alt` | 도로시 최신 이격(3심 엔딩용, 사용자 제공 그림) | normal, smile, sad |
 
 빙의 모습(`medium_<인물>`)은 `make_portraits.py`가 `medium_normal`과 그 인물의 원본 그림 두 장을 참고로 만든다. 나유타 재판에서 가져온 초상(에닉·노벨·요한·아니스·세실·홍련·스노우 화이트·나유타)은 `FACES`에 넣지 않아 다시 만들지 않는다.
 

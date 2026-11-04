@@ -16,7 +16,7 @@ from make_portraits import KU_DRAW, ROOT, RAW, remove_background  # noqa: E402
 STYLE = ("16-bit retro game pixel art, clearly visible chunky square pixels, limited palette, "
          "clean dark outline, no text, no letters, no UI.")
 
-# 도로시 재판: 배경은 나유타 재판에서 가져왔다. 갱생관(assets/bg/rehab.png)은 assets/raw/bg_rehab_2.png 를 128색으로 줄인 것.
+# 도로시 재판: 배경은 나유타 재판에서 가져왔다. 갱생관(rehab)=raw/bg_rehab_2, 중앙정부 광장(plaza)=raw/bg_plaza_1, A.C.P.U. 본부(acpu)=raw/bg_acpu_1 을 128색으로 줄인 것.
 # 참고: 지금 게임 배경(assets/bg/court.png)은 assets/raw/bg_mass_2.png(밝은 캐주얼 + 양산형 니케·눈 가린 NPC 관중)를 골라 넣은 것이다.
 # 아래 BG는 처음 만든 어두운 배경의 지시문이다. 다시 돌리면 어두운 배경으로 덮어쓰니 주의.
 # 휴정 대기실(assets/bg/lobby.png)은 assets/raw/bg_lobby_2.png 를 128색으로 줄인 것이다(법정 배경 bg_mass_2를 화풍 참고로 생성).
@@ -36,6 +36,15 @@ ICONS = {
     "e5": "a pink speech bubble shaped note card with a small heart drawn in the corner",
     "e6": "a sealed official expulsion letter envelope with a dark gray wax seal",
     "e7": "a small yellow memo note with a hand-drawn bowing stick figure",
+    # 제2심
+    "e8": "a folded official indictment document with a dark green military seal stamp",
+    "e9": "a broadcast recording cassette next to a small screen showing a warning icon and a falling power gauge",
+    "e10": "a thick bundle of citizen report forms with a few small heart stickers on them",
+    "e11": "a forensic tag attached to a scorched metal robot torso fragment with a small antenna receiver chip",
+    "e12": "a small pendant necklace with a light blue gem, inside a clear plastic evidence bag",
+    "e13": "a clear evidence bag with many brass bullet casings and one glowing blue optical shell",
+    "e14": "a radio signal log printout with sharp red spikes and a small military truck icon",
+    "e15": "a confidential inspection report folder with a purple audit seal",
 }
 
 
