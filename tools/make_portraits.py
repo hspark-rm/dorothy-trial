@@ -46,6 +46,7 @@ FACES = {
     "andersen": ["normal", "smile", "sad"],          # 3심 재판장 엔더슨(판결 뒤 얼굴을 드러냄)
     "andersen_hidden": ["normal"],                   # 얼굴을 가린 3심 재판장. 참고 = andersen.png + BASE_EXTRA
     "medium_oswald": ["normal", "sad"],              # 빙의한 오스왈드(영매 옷 + 오스왈드 얼굴·체형)
+    "arcana": ["normal", "smile", "shock"],          # 3심 첫 증인, 금서고 사서. 이격 「포춘 메이트」
 }
 FACE_DESC = {
     "normal": "calm, neutral expression",

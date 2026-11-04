@@ -56,6 +56,7 @@ ICONS = {
     "e23": "an old worn leather-bound handwritten notebook tied with a string",
     "e25": "a rusty metal signboard with a new name plate bolted over an older erased name",
     "e26": "an old red sword scabbard with seven bullet dents along its length",
+    "e27": "an ancient sealed roster book with a broken blue wax seal, one line on the page crossed out",
 }
 
 
