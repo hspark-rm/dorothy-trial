@@ -1,0 +1,37 @@
+도로시 재판: 지휘관의 변론 — 이용 조건
+
+제작: 유기농쵸비 · 연락·피드백: globalchmist@naver.com
+
+이 저장소는 비영리 팬 프로젝트입니다. 권리자가 요청하면 즉시 중단하고 삭제합니다.
+
+1. 게임 코드 (src/, tools/, index.html) — MIT 라이선스
+   Copyright (c) 2026 유기농쵸비
+
+   Permission is hereby granted, free of charge, to any person obtaining a copy
+   of this software and associated documentation files (the "Software"), to deal
+   in the Software without restriction, including without limitation the rights
+   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+   copies of the Software, and to permit persons to whom the Software is
+   furnished to do so, subject to the following conditions:
+
+   The above copyright notice and this permission notice shall be included in all
+   copies or substantial portions of the Software.
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+   SOFTWARE.
+
+2. 캐릭터·세계관·그림 (assets/, og.png, data/ 의 대사) — 위 MIT 라이선스에 포함되지 않습니다.
+   - 「승리의 여신: 니케」의 캐릭터와 세계관: © SHIFT UP Corp.
+   - 404 덩기덕 캐릭터: 404 덩기덕 및 소속사의 권리입니다.
+   - 도트 초상화·배경·아이콘은 원작 그림을 참고해 AI 이미지 모델로 다시 그린 팬아트입니다.
+     이 게임 밖에서 재사용하거나 판매할 수 없습니다.
+   - 대본은 원작 장면을 참고한 창작이며 원작 대사를 옮긴 것이 아닙니다.
+
+3. 글꼴 — 갈무리(Galmuri) © quiple, SIL Open Font License 1.1 (jsDelivr에서 불러옴)
+
+상업적 이용은 할 수 없습니다.

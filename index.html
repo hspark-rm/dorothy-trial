@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="theme-color" content="#07060c">
+<title>도로시 재판: 지휘관의 변론</title>
+<!-- 카페·메신저에 링크를 붙였을 때 뜨는 미리보기 카드 -->
+<meta name="description" content="방주를 증오한다는 도로시, 그 속마음을 변호하라. 지휘관이 되어 현장을 조사하고 법정에서 모순을 찾는 도트 팬게임. 비공식 · 비영리.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="도로시 재판: 지휘관의 변론">
+<meta property="og:description" content="방주를 증오한다는 도로시, 그 속마음을 변호하라. 지휘관이 되어 현장을 조사하고 법정에서 모순을 찾는 도트 팬게임. 비공식 · 비영리.">
+<meta property="og:image" content="https://hspark-rm.github.io/dorothy-trial/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="https://hspark-rm.github.io/dorothy-trial/">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+  /* 갈무리11: 도트 한글 글꼴, SIL OFL 1.1 (github.com/quiple/galmuri) */
+  @font-face { font-family: Galmuri11; src: url(https://cdn.jsdelivr.net/npm/galmuri@2.40.3/dist/Galmuri11.woff2) format("woff2"); }
+  @font-face { font-family: Galmuri11Bold; src: url(https://cdn.jsdelivr.net/npm/galmuri@2.40.3/dist/Galmuri11-Bold.woff2) format("woff2"); }
+  html, body { margin: 0; height: 100%; background: #07060c; overflow: hidden; overscroll-behavior: none; }
+  body { display: flex; align-items: center; justify-content: center;
+    -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; touch-action: none; }
+  /* 캔버스는 1920×1080(FHD)으로 그리고 화면 크기에 맞춰 늘이거나 줄인다 → 휴대폰에서도 화면을 꽉 채움 */
+  canvas { display: block; touch-action: none; }
+</style>
+</head>
+<body>
+<canvas id="game" width="320" height="180"></canvas>
+<script>
+  // 고친 시나리오·엔진이 휴대폰에서도 바로 반영되도록 캐시를 쓰지 않고 매번 받는다(작은 파일이라 부담 없음)
+  for (const s of ['data/case1.js', 'src/game.js']) document.write(`<script src="${s}?t=${Date.now()}"><\/script>`);
+</script>
+</body>
+</html>
