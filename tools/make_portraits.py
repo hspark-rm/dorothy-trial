@@ -41,6 +41,8 @@ FACES = {
     "miranda": ["normal", "smile", "shock"],         # A.C.P.U. 감찰관. 2심 증인
     "doban": ["normal", "smile", "shock"],           # 2심 검사(중간보스). smile = 비웃음. 그림 없이 글 묘사(TEXT_DESC)
     "burningham": ["normal", "stern", "smile"],      # 3심 검사(최종). 글 묘사
+    "ingrid": ["normal", "stern", "shock", "smile"],          # 2심 검사. 엘리시온 CEO, 라피의 교관
+    "iri": ["normal", "stern", "shock", "smile"],             # 3심 검사·4심 증인. 오버시어 감찰부대원. 머리에 붕대(도반 부대에 습격당한 상처)
     "citizen": ["normal", "smile", "sad"],           # 2심 시민 증인. 글 묘사
     "medium_fina": ["normal", "sad"],                # 빙의한 피나(영매 옷 + 피나 얼굴). 참고 = medium_normal + fina.png
     "andersen": ["normal", "smile", "sad"],          # 3심 재판장 엔더슨(판결 뒤 얼굴을 드러냄)
@@ -91,6 +93,7 @@ TEXT_DESC = {
 # 다른 인물의 원본 그림을 참고로 쓰는 경우와 덧붙일 설명
 REF_ALIAS = {"andersen_hidden": "andersen"}
 BASE_EXTRA = {
+    "iri": " She has a fresh white medical bandage wrapped around her head just under the cap (a recent injury).",
     "andersen_hidden": " Keep the same build and uniform, but cover him with a long black judge's hooded robe; the hood is pulled down and a plain white featureless mask hides the whole face. No face visible.",
 }
 # 빙의 모습에 덧붙일 설명

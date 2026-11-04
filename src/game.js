@@ -1406,9 +1406,10 @@
     rect(0, 0, W, H, COL.night);
     text('심 선택', 160, 10, COL.gold, { align: 'center', bold: true, scale: 1.5 });
     text('고른 심의 처음부터 시작합니다. 증거는 그 심에서 새로 모읍니다.', 160, 36, COL.dim, { align: 'center', scale: 10 / 12 });
-    const n = CASE.trials.length, gap = Math.min(24, Math.floor(96 / n)), bh = Math.min(20, gap - 3);
-    CASE.trials.forEach((t, i) => button(60, 50 + i * gap, 200, bh, `${t.title} 「${t.sub}」`, () => startNew(t.label)));
-    button(120, 152, 80, 18, '돌아가기', () => { S.scene = 'title'; SFX.select(); });
+    // 심이 많으면 버튼 간격을 줄인다(5심 + 에필로그 = 6칸까지 한 화면)
+    const n = CASE.trials.length, gap = Math.min(24, Math.floor(106 / n)), bh = Math.min(20, gap - 2);
+    CASE.trials.forEach((t, i) => button(40, 48 + i * gap, 240, bh, `${t.title} 「${t.sub}」`, () => startNew(t.label)));
+    button(120, 158, 80, 18, '돌아가기', () => { S.scene = 'title'; SFX.select(); });
   }
   function drawSkins() {
     rect(0, 0, W, H, COL.night);

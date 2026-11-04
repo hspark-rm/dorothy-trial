@@ -57,6 +57,11 @@ ICONS = {
     "e25": "a rusty metal signboard with a new name plate bolted over an older erased name",
     "e26": "an old red sword scabbard with seven bullet dents along its length",
     "e27": "an ancient sealed roster book with a broken blue wax seal, one line on the page crossed out",
+    # 5심 개편(2026-11-05): 2심·4심 공소장, 3심 방송 허가 반려서, 4심 아이리 진단서
+    "e28": "a folded official indictment document with a crimson red seal and a small syringe emblem",
+    "e29": "a folded official indictment document with a dark olive green seal and a small bullet emblem",
+    "e30": "a broadcast permit application form stamped with a large red REJECTED stamp, a small antenna tower icon in the corner",
+    "e31": "a medical diagnosis chart with a head x-ray image showing a small bullet fragment",
 }
 
 
