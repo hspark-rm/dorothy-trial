@@ -8,7 +8,7 @@
 
 플레이: <https://hspark-rm.github.io/dorothy-trial/>
 
-제작: 유기농쵸비 · 피드백: globalchmist@naver.com
+제작: 닥터야돈 · 피드백: globalchmist@naver.com
 
 지금 들어 있는 것: 제1심 「사랑받지 못한 채널」(갱생관 조사 + 재판, 영매 빙의). 2심 「도반의 법정」, 3심(버닝엄·재판장 앤더슨)은 만드는 중.
 

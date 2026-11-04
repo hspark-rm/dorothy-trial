@@ -6,6 +6,7 @@
 window.CASE = {
   id: 'case1',
   gameId: 'dorothy-trial',
+  maker: '닥터야돈',
   title: '도로시 재판',
   tagline: '지휘관의 변론',
   subtitle: '— 제1심 · 사랑받지 못한 채널 —',

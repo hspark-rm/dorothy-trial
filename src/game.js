@@ -1160,7 +1160,8 @@
   }
   const TITLE = CASE.title || '나유타 재판', TAGLINE = CASE.tagline || '이 길이 아닌가?';
   const CREDIT = '비공식 팬 제작 · 원작: 승리의 여신: 니케 / SHIFT UP';
-  const NOTICE = '제작 유기농쵸비 · 비영리 팬 프로젝트 · 문제 시 즉시 삭제합니다';
+  const MAKER = CASE.maker || '유기농쵸비'; // 제작자 표기(게임마다 CASE.maker)
+  const NOTICE = `제작 ${MAKER} · 비영리 팬 프로젝트 · 문제 시 즉시 삭제합니다`;
   const FEEDBACK = '피드백: globalchmist@naver.com';
   function drawTitle() {
     rect(0, 0, W, H, COL.night);
@@ -1212,7 +1213,7 @@
     text(`플레이 시간 ${Math.floor(st.sec / 60)}분 ${String(Math.round(st.sec % 60)).padStart(2, '0')}초`, 160, 111, COL.dim, { align: 'center' });
     button(64, 142, 94, 18, '결과 복사', copyResult);
     button(162, 142, 94, 18, '타이틀로', toTitle);
-    text(`${FEEDBACK} · 제작 유기농쵸비`, 160, 166, COL.dim, { align: 'center', scale: 10 / 12 });
+    text(`${FEEDBACK} · 제작 ${MAKER}`, 160, 166, COL.dim, { align: 'center', scale: 10 / 12 });
   }
   function drawChoice() {
     const c = S.choice;
