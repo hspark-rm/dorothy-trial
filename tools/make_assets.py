@@ -45,6 +45,17 @@ ICONS = {
     "e13": "a clear evidence bag with many brass bullet casings and one glowing blue optical shell",
     "e14": "a radio signal log printout with sharp red spikes and a small military truck icon",
     "e15": "a confidential inspection report folder with a purple audit seal",
+    # 제3심
+    "e16": "a folded official indictment document with a navy blue seal and a small gavel emblem",
+    "e17": "an old yellowed government archive file stamped with a large red X mark",
+    "e18": "a cracked metal operation plaque from a defensive wall showing a progress gauge at 72 percent",
+    "e19": "an old dusty field radio communication terminal with a faint pink glowing screen",
+    "e20": "a small voice recorder device next to a steaming teacup",
+    "e21": "a glowing tablet showing a document with a small green sprout emblem",
+    "e22": "a security camera snapshot photo of a winged goddess statue at night with a small pink-haired figure cleaning it",
+    "e23": "an old worn leather-bound handwritten notebook tied with a string",
+    "e25": "a rusty metal signboard with a new name plate bolted over an older erased name",
+    "e26": "an old red sword scabbard with seven bullet dents along its length",
 }
 
 

@@ -43,6 +43,9 @@ FACES = {
     "burningham": ["normal", "stern", "smile"],      # 3심 검사(최종). 글 묘사
     "citizen": ["normal", "smile", "sad"],           # 2심 시민 증인. 글 묘사
     "medium_fina": ["normal", "sad"],                # 빙의한 피나(영매 옷 + 피나 얼굴). 참고 = medium_normal + fina.png
+    "andersen": ["normal", "smile", "sad"],          # 3심 재판장 엔더슨(판결 뒤 얼굴을 드러냄)
+    "andersen_hidden": ["normal"],                   # 얼굴을 가린 3심 재판장. 참고 = andersen.png + BASE_EXTRA
+    "medium_oswald": ["normal", "sad"],              # 빙의한 오스왈드(영매 옷 + 오스왈드 얼굴·체형)
 }
 FACE_DESC = {
     "normal": "calm, neutral expression",
@@ -62,10 +65,10 @@ STYLE = ("16-bit retro game pixel art, clearly visible chunky square pixels, lim
          "Plain pure white background, no text, no frame, no UI, no shadow on the background.")
 
 
-def prompt_base(face):
+def prompt_base(face, cid=""):
     return ("Redraw the character from the reference image as a pixel art character portrait. "
             "Keep the same hairstyle, hair color, eye color, outfit, hat and accessories as the reference. "
-            f"Expression: {FACE_DESC[face]}. " + STYLE)
+            + BASE_EXTRA.get(cid, "") + f" Expression: {FACE_DESC[face]}. " + STYLE)
 
 
 def prompt_variant(face):
@@ -78,6 +81,11 @@ TEXT_DESC = {
     "doban": "a burly middle-aged human male military officer with bulging muscles, a bushy dark beard and a dark beret, heavy armor plates and combat gear over a dark gray-green military uniform, a cold arrogant look",
     "burningham": "an obese middle-aged human man with a round face and a bowl-cut dark hairstyle, wearing a dark navy military officer uniform with gold epaulettes and a few medals, a futuristic government army deputy commander",
     "citizen": "an ordinary young adult civilian man of a futuristic underground city, short brown hair, casual hoodie under a work jacket, eyes hidden behind a dark narrow visor band, friendly face",
+}
+# 다른 인물의 원본 그림을 참고로 쓰는 경우와 덧붙일 설명
+REF_ALIAS = {"andersen_hidden": "andersen"}
+BASE_EXTRA = {
+    "andersen_hidden": " Keep the same build and uniform, but cover him with a long black judge's hooded robe; the hood is pulled down and a plain white featureless mask hides the whole face. No face visible.",
 }
 # 빙의 모습에 덧붙일 설명
 POSSESS_EXTRA = {
@@ -173,7 +181,7 @@ def main():
     todo, missing = [], []
     for cid in chars:
         # 빙의 모습(medium_<인물>)은 그 인물의 원본 그림을 참고로 쓴다
-        ref = find_ref(a.ref_dir, cid.split("_", 1)[1] if cid.startswith("medium_") else cid)
+        ref = find_ref(a.ref_dir, REF_ALIAS.get(cid) or (cid.split("_", 1)[1] if cid.startswith("medium_") else cid))
         if not ref and cid not in TEXT_DESC:
             missing.append(cid); continue
         for face in FACES[cid]:
@@ -196,7 +204,7 @@ def main():
         elif face == "normal" and not ref:
             ok = generate(prompt_text(cid, face), [], raw)
         elif face == "normal":
-            ok = generate(prompt_base(face), [ref], raw)
+            ok = generate(prompt_base(face, cid), [ref], raw)
         else:
             base = RAW / f"{cid}_normal.png"
             ok = base.exists() and generate(prompt_variant(face), [base], raw)
