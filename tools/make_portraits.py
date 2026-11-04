@@ -34,6 +34,8 @@ FACES = {
     "medium": ["normal", "trance"],                  # 영매 = 양산형 니케(Product 08)
     # 빙의 모습: 옷은 영매(medium) 그대로, 얼굴·머리·체형만 그 인물. 참고 = medium_normal + <인물>.png
     "medium_redhood": ["normal", "smile", "sad"],
+    "rapi": ["normal", "stern", "sad"],              # 카운터스. 1심 피해자 증인, 프롤로그에서 변호를 권함
+    "neon": ["normal", "smile", "shock"],            # 카운터스. 1심 증인(채널 협상)
 }
 FACE_DESC = {
     "normal": "calm, neutral expression",

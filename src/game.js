@@ -25,6 +25,20 @@
   const GAME = CASE.gameId || 'nayuta-trial'; // 저장·설정 이름 앞부분. 다른 게임과 저장이 섞이지 않게
   const SAVE_KEY = GAME + '.save.v1.' + scriptHash;
   const MAX_PATIENCE = 5;
+  // 플레이어 이름: 대본·증거·경고 문구의 {name}을 이 이름으로 바꾼다(CASE.askName이면 새로 시작할 때 묻는다)
+  const NAME_KEY = GAME + '.name', DEFAULT_NAME = CASE.defaultName || '지휘관';
+  const TEMPLATE = JSON.parse(JSON.stringify({ script: CASE.script, evidence: CASE.evidence, pressure: CASE.pressure || null, me: (CASE.chars.me || {}).name }));
+  let playerName = DEFAULT_NAME;
+  try { playerName = localStorage.getItem(NAME_KEY) || DEFAULT_NAME; } catch (e) { /* 기본 이름 */ }
+  function applyName(n) {
+    playerName = n || DEFAULT_NAME;
+    const r = (v) => typeof v === 'string' ? v.split('{name}').join(playerName)
+      : Array.isArray(v) ? v.map(r) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, r(x)])) : v;
+    CASE.script = r(TEMPLATE.script); CASE.evidence = r(TEMPLATE.evidence);
+    if (TEMPLATE.pressure) CASE.pressure = r(TEMPLATE.pressure);
+    if (CASE.askName && CASE.chars.me) CASE.chars.me.name = playerName;
+  }
+  if (CASE.askName) applyName(playerName);
 
   // ───────── 화면 맞춤: FHD 캔버스를 CSS로 화면 크기에 맞춘다 ─────────
   function fit() {
@@ -428,8 +442,10 @@
         S.pocket = { id: op.id, t: 0 };
         const nm = CASE.evidence[op.id].name, pt = josa(nm, '을', '를').slice(nm.length);
         const got = { who: null, color: COL.gold, line: `「${nm}」${pt} 증거 목록에 넣었다.` };
-        const auto = S.inv ? FIND_LINES[S.pockets++ % FIND_LINES.length] : POCKET_LINES[S.pockets++ % POCKET_LINES.length];
-        const react = op.line === false ? [] : [{ who: 'me', face: op.face || (S.inv ? 'confident' : 'shock'), line: op.line || auto }];
+        // CASE.pocket === false 인 게임은 주머니 개그 없이, 언제나 '건네받거나 찾은' 증거로 보여 준다
+        const found = S.inv || CASE.pocket === false;
+        const auto = found ? FIND_LINES[S.pockets++ % FIND_LINES.length] : POCKET_LINES[S.pockets++ % POCKET_LINES.length];
+        const react = op.line === false ? [] : [{ who: 'me', face: op.face || (found ? 'confident' : 'shock'), line: op.line || auto }];
         sub([...react, got], () => { S.pocket = null; step(); });
         return true;
       }
@@ -645,7 +661,7 @@
   // ───────── 저장 1칸 ─────────
   function snapshot() {
     const inv = S.inv && { id: S.inv.op.id, place: S.inv.place, seen: { ...S.inv.seen }, talked: { ...S.inv.talked }, visited: [...S.inv.visited] };
-    return { pc: S.stack[0].pc, ev: [...S.ev], patience: S.patience, hinted: S.hinted, bg: S.bg, pockets: S.pockets, stats: { ...S.stats }, inv, alias: { ...(S.alias || {}) } };
+    return { pc: S.stack[0].pc, ev: [...S.ev], patience: S.patience, hinted: S.hinted, bg: S.bg, pockets: S.pockets, stats: { ...S.stats }, inv, alias: { ...(S.alias || {}) }, name: playerName };
   }
   function save() {
     S.saved = snapshot();
@@ -656,6 +672,7 @@
     try { localStorage.removeItem(SAVE_KEY); } catch (e) { /* 무시 */ }
   }
   function begin(from) {
+    if (CASE.askName) applyName(from && from.name ? from.name : playerName);
     S.scene = 'play';
     if (!from) wrongCount = new WeakMap(); // 새 게임이면 힌트 단계도 처음부터
     // 조사 도중에 저장했다면 조사 명령부터 다시 실행해, 본 곳·나눈 이야기를 되살린다
@@ -703,6 +720,7 @@
   // 손가락을 떼면 강조 표시를 지운다(마우스와 달리 위치가 남지 않게)
   cv.addEventListener('pointerup', (e) => { if (e.pointerType !== 'mouse') pointer.x = pointer.y = -1; });
   document.addEventListener('pointerdown', (e) => {
+    if (nameBox) return; // 이름 입력 창을 누를 때는 게임 입력으로 쓰지 않는다(입력칸에 글자를 쓸 수 있게)
     e.preventDefault();
     if (!started || (S.scene !== 'play' && performance.now() < lockUntil)) return;
     audio();
@@ -722,10 +740,34 @@
     else if (S.mode === 'stamp') { S.fx.stamp = null; S.mode = 'idle'; step(); }
     else if (S.mode === 'cross') crossMove(1); // 신문 중에 화면을 누르면 다음 증언으로
   }
+  let nameBox = null;
+  function startNew() {
+    if (!CASE.askName || !document.body) { begin(null); return; }
+    if (nameBox) return;
+    nameBox = document.createElement('div');
+    nameBox.style.cssText = 'position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(7,6,12,.78);z-index:10;font-family:Galmuri11,sans-serif';
+    // 글자 크기는 화면 너비를 따라간다(휴대폰 가로 화면에서도, FHD 모니터에서도 읽기 좋게)
+    nameBox.innerHTML = '<form style="font-size:clamp(15px,2.3vw,44px);background:#10101c;border:0.15em solid #e8c060;padding:1em 1.4em;display:flex;flex-direction:column;gap:0.6em;align-items:center;color:#f4f0e6">' +
+      '<div style="color:#e8c060;font-size:1.2em">이름을 적어 주세요</div>' +
+      '<div style="font-size:0.7em;color:#8a86a8">게임 속 인물들이 이 이름으로 부릅니다</div>' +
+      '<input maxlength="8" style="font:inherit;font-size:1.2em;width:9em;text-align:center;padding:0.25em;background:#07060c;color:#f4f0e6;border:0.1em solid #8a86a8">' +
+      '<button style="font:inherit;padding:0.25em 1.6em;background:#e8c060;color:#0d0b14;border:0">시작</button></form>';
+    document.body.appendChild(nameBox);
+    const input = nameBox.querySelector('input');
+    input.value = playerName;
+    nameBox.querySelector('form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const n = input.value.trim() || DEFAULT_NAME;
+      try { localStorage.setItem(NAME_KEY, n); } catch (err) { /* 이번 판에서만 */ }
+      nameBox.remove(); nameBox = null;
+      applyName(n); begin(null);
+    });
+    setTimeout(() => { input.focus(); input.select(); }, 30);
+  }
   let titleSel = 0; // 타이틀에서 키보드로 고른 버튼: 0 새로 시작, 1 이어하기
   addEventListener('keydown', (e) => {
     // 길게 누르기 반복, 브라우저 단축키(Cmd/Ctrl+F 등), 세로 화면, 시작 전 입력은 무시한다
-    if (e.repeat || e.metaKey || e.ctrlKey || e.altKey || !started || portraitHeld()) return;
+    if (nameBox || e.repeat || e.metaKey || e.ctrlKey || e.altKey || !started || portraitHeld()) return;
     if (S.scene !== 'play' && performance.now() < lockUntil) return;
     audio();
     const k = e.key;
@@ -733,7 +775,7 @@
     if (k === 'f' || k === 'F') { toggleSpeed(); return; }
     if (S.scene === 'title') {
       if ((k === 'ArrowUp' || k === 'ArrowDown') && S.saved) { titleSel = 1 - titleSel; SFX.select(); }
-      else if (k === 'Enter' || k === ' ') begin(titleSel === 1 && S.saved ? S.saved : null);
+      else if (k === 'Enter' || k === ' ') { if (titleSel === 1 && S.saved) begin(S.saved); else startNew(); }
       e.preventDefault();
       return;
     }
@@ -1092,7 +1134,7 @@
     // 변호인 얼굴을 가리지 않게 오른쪽에 띄운다
     const x = 210, y = 20 + Math.round(rise * 60) + bob, w = 104, h = 84;
     frameBox(x, y, w, h);
-    text(S.inv ? '새 증거품' : '주머니 속 증거품', x + w / 2, y + 4, COL.dim, { align: 'center', scale: 10 / 12 });
+    text(S.inv || CASE.pocket === false ? '새 증거품' : '주머니 속 증거품', x + w / 2, y + 4, COL.dim, { align: 'center', scale: 10 / 12 });
     evIcon(p.id, x + w / 2 - 24, y + 17, 1.5);
     wrap(ev.name, w - 10, true).slice(0, 2).forEach((s, i) => text(s, x + w / 2, y + 64 + i * 10, COL.gold, { align: 'center', bold: true, scale: 10 / 12 }));
   }
@@ -1174,7 +1216,7 @@
     text(TAGLINE, 160, 50, COL.text, { align: 'center', bold: true, scale: 1.5, outline: COL.ink });
     text(CASE.subtitle || '', 160, 72, COL.dim, { align: 'center' });
     if (!S.saved) titleSel = 0;
-    button(110, 88, 100, 18, '새로 시작', () => begin(null), { sel: titleSel === 0 && pointer.x < 0 });
+    button(110, 88, 100, 18, '새로 시작', startNew, { sel: titleSel === 0 && pointer.x < 0 });
     button(110, 109, 100, 18, '이어하기', () => begin(S.saved), { off: !S.saved, sel: titleSel === 1 && pointer.x < 0 });
     const sound = muted ? '소리 꺼짐' : '소리 켜짐';
     const hasSkins = Object.keys(CASE.variants || {}).length > 0;
