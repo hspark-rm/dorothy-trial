@@ -24,7 +24,16 @@
   const scriptHash = (() => { let h = 5381; const t = JSON.stringify(CASE.script); for (let i = 0; i < t.length; i++) h = ((h * 33) ^ t.charCodeAt(i)) >>> 0; return h.toString(36); })();
   const GAME = CASE.gameId || 'nayuta-trial'; // 저장·설정 이름 앞부분. 다른 게임과 저장이 섞이지 않게
   const SAVE_KEY = GAME + '.save.v1.' + scriptHash;
-  const MAX_PATIENCE = 5;
+  // 난이도: 하트 수와 힌트 양이 달라진다. easy 줄(대본의 easy: true)은 쉬움에서만 나온다
+  const DIFFS = {
+    easy:   { label: '쉬움',   hearts: 7, hints: 2 },
+    normal: { label: '보통',   hearts: 5, hints: 1 },
+    hard:   { label: '어려움', hearts: 3, hints: 0 },
+  };
+  const DIFF_KEY = GAME + '.difficulty';
+  let difficulty = 'normal';
+  try { difficulty = DIFFS[localStorage.getItem(DIFF_KEY)] ? localStorage.getItem(DIFF_KEY) : 'normal'; } catch (e) { /* 기본 보통 */ }
+  const maxPatience = () => DIFFS[difficulty].hearts;
   // 플레이어 이름: 대본·증거·경고 문구의 {name}을 이 이름으로 바꾼다(CASE.askName이면 새로 시작할 때 묻는다)
   const NAME_KEY = GAME + '.name', DEFAULT_NAME = CASE.defaultName || '지휘관';
   const TEMPLATE = JSON.parse(JSON.stringify({ script: CASE.script, evidence: CASE.evidence, pressure: CASE.pressure || null, me: (CASE.chars.me || {}).name }));
@@ -363,7 +372,7 @@
   // ───────── 상태 ─────────
   const S = {
     scene: 'title', // title | play | over | end
-    stack: [], ev: [], patience: MAX_PATIENCE, saved: null,
+    stack: [], ev: [], patience: 5, saved: null,
     mode: 'idle', // line | cross | chapter | testTitle | stamp | idle
     line: null, portrait: null, test: null, overlay: null, demand: null,
     chapter: null, testTitle: null, end: null, hinted: false,
@@ -400,7 +409,7 @@
       if (exec(op)) return;
     }
   }
-  function sub(list, onDone) { S.stack.push({ list, pc: 0, onDone }); step(); }
+  function sub(list, onDone) { S.stack.push({ list: list.filter((l) => !l.easy || difficulty === 'easy'), pc: 0, onDone }); step(); }
   function jumpTo(id) {
     S.stack.length = 1;
     S.stack[0].pc = labels.get(id) + 1;
@@ -455,7 +464,7 @@
       }
       case 'bg': S.bg = op.id; if ((CASE.cg || []).includes(op.id)) S.portrait = null; return false;
       // 저장 지점(모순을 하나 풀 때마다)에서 하트를 다시 채운다. 앞 증언의 실수가 뒤 증언까지 이어지지 않게
-      case 'save': S.patience = MAX_PATIENCE; save(); return false;
+      case 'save': S.patience = maxPatience(); save(); return false;
       case 'chapter': S.portrait = null; S.chapter = op; S.mode = 'chapter'; return true;
       case 'testimony': startTestimony(op); return true;
       case 'investigate': startInvestigate(op); return true;
@@ -552,7 +561,7 @@
   // 틀릴 때마다 변호인이 속으로 힌트를 말한다. 같은 증언에서 여러 번 틀리면 더 분명한 힌트로 넘어간다
   let wrongCount = new WeakMap();
   function hintFor(op) {
-    const hs = op && op.hints;
+    const hs = op && op.hints && op.hints.slice(0, DIFFS[difficulty].hints);
     if (!hs || !hs.length) return [];
     S.stats.hints++;
     const n = wrongCount.get(op) || 0;
@@ -665,7 +674,7 @@
   // ───────── 저장 1칸 ─────────
   function snapshot() {
     const inv = S.inv && { id: S.inv.op.id, place: S.inv.place, seen: { ...S.inv.seen }, talked: { ...S.inv.talked }, visited: [...S.inv.visited] };
-    return { pc: S.stack[0].pc, ev: [...S.ev], patience: S.patience, hinted: S.hinted, bg: S.bg, pockets: S.pockets, stats: { ...S.stats }, inv, alias: { ...(S.alias || {}) }, name: playerName };
+    return { pc: S.stack[0].pc, ev: [...S.ev], patience: S.patience, hinted: S.hinted, bg: S.bg, pockets: S.pockets, stats: { ...S.stats }, inv, alias: { ...(S.alias || {}) }, name: playerName, diff: difficulty };
   }
   function save() {
     S.saved = snapshot();
@@ -721,6 +730,7 @@
   }
   function begin(from) {
     if (CASE.askName) applyName(from && from.name ? from.name : playerName);
+    if (from && DIFFS[from.diff]) difficulty = from.diff;
     S.scene = 'play';
     if (!from) wrongCount = new WeakMap(); // 새 게임이면 힌트 단계도 처음부터
     // 조사 도중에 저장했다면 조사 명령부터 다시 실행해, 본 곳·나눈 이야기를 되살린다
@@ -728,7 +738,7 @@
     S.stack = [{ list: CASE.script, pc: from ? from.pc - (from.inv ? 1 : 0) : 0 }];
     S.inv = null;
     S.ev = from ? [...from.ev] : [...(CASE.startEvidence || [])];
-    S.patience = MAX_PATIENCE; // 이어하기·다시하기 모두 하트를 채워서 시작
+    S.patience = maxPatience(); // 이어하기·다시하기 모두 하트를 채워서 시작
     S.stats = from && from.stats ? { ...from.stats } : { wrongs: 0, hints: 0, overs: 0, sec: 0 };
     S.choice = null; S.logView = null; S.slotView = null; S.fx.murmur = null;
     if (!from) S.log = [];
@@ -804,14 +814,26 @@
       '<div style="color:#e8c060;font-size:1.2em">이름을 적어 주세요</div>' +
       '<div style="font-size:0.7em;color:#8a86a8">게임 속 인물들이 이 이름으로 부릅니다</div>' +
       '<input maxlength="8" style="font:inherit;font-size:1.2em;width:9em;text-align:center;padding:0.25em;background:#07060c;color:#f4f0e6;border:0.1em solid #8a86a8">' +
+      '<div style="color:#e8c060;margin-top:0.4em">난이도</div><div class="diffs" style="display:flex;gap:0.4em">' +
+      Object.entries(DIFFS).map(([k, d]) => `<button type="button" data-d="${k}" style="font:inherit;font-size:0.85em;padding:0.2em 0.8em;border:0.1em solid #8a86a8;background:#07060c;color:#f4f0e6">${d.label}</button>`).join('') +
+      '</div><div class="diffnote" style="font-size:0.65em;color:#8a86a8;min-height:1.2em"></div>' +
       '<button style="font:inherit;padding:0.25em 1.6em;background:#e8c060;color:#0d0b14;border:0">시작</button></form>';
     document.body.appendChild(nameBox);
     const input = nameBox.querySelector('input');
     input.value = playerName;
+    let pickDiff = difficulty;
+    const NOTE = { easy: '하트 7개 · 틀리면 힌트 2단계 · 변호인의 혼잣말이 많음', normal: '하트 5개 · 틀리면 힌트 1단계', hard: '하트 3개 · 힌트 없음' };
+    const paint = () => {
+      nameBox.querySelectorAll('[data-d]').forEach((b) => { const on = b.dataset.d === pickDiff; b.style.background = on ? '#e8c060' : '#07060c'; b.style.color = on ? '#0d0b14' : '#f4f0e6'; });
+      nameBox.querySelector('.diffnote').textContent = NOTE[pickDiff];
+    };
+    nameBox.querySelectorAll('[data-d]').forEach((b) => b.addEventListener('click', () => { pickDiff = b.dataset.d; paint(); }));
+    paint();
     nameBox.querySelector('form').addEventListener('submit', (e) => {
       e.preventDefault();
       const n = input.value.trim() || DEFAULT_NAME;
-      try { localStorage.setItem(NAME_KEY, n); } catch (err) { /* 이번 판에서만 */ }
+      difficulty = pickDiff;
+      try { localStorage.setItem(NAME_KEY, n); localStorage.setItem(DIFF_KEY, difficulty); } catch (err) { /* 이번 판에서만 */ }
       nameBox.remove(); nameBox = null;
       applyName(n); startAt(label);
     });
@@ -928,7 +950,7 @@
     const st = S.stats || { wrongs: 0, hints: 0, overs: 0, sec: 0 };
     const m = Math.floor(st.sec / 60), sc = Math.round(st.sec % 60);
     return `[${TITLE}: ${TAGLINE}] ${S.end ? S.end.title : ''}!\n` +
-      `실수 ${st.wrongs}회 · 힌트 ${st.hints}번 · 패소 ${st.overs}번 · ${m}분 ${String(sc).padStart(2, '0')}초\n` +
+      `난이도 ${DIFFS[difficulty].label} · 실수 ${st.wrongs}회 · 힌트 ${st.hints}번 · 패소 ${st.overs}번 · ${m}분 ${String(sc).padStart(2, '0')}초\n` +
       location.href.split('?')[0];
   }
   function copyResult() {
@@ -954,7 +976,7 @@
     try { localStorage.setItem(GAME + '.mute', muted ? '1' : '0'); } catch (e) { /* 무시 */ }
   }
   // 다시하기는 저장 위치로 돌아가되 실수·패소 기록은 이어 간다
-  function retry() { begin(S.saved ? { ...S.saved, patience: MAX_PATIENCE, stats: { ...S.stats } } : null); }
+  function retry() { begin(S.saved ? { ...S.saved, patience: maxPatience(), stats: { ...S.stats } } : null); }
   function toTitle() { S.scene = 'title'; titleSel = S.saved ? 1 : 0; lockInput(); }
 
   // ───────── 갱신 ─────────
@@ -1102,12 +1124,12 @@
   }
   const HEART = ['0110110', '1111111', '1111111', '0111110', '0011100', '0001000'];
   function drawHud() {
-    for (let i = 0; i < MAX_PATIENCE; i++) {
+    for (let i = 0; i < maxPatience(); i++) {
       const on = i < S.patience, ox = 6 + i * 10, oy = 6;
       const blink = S.patience === 1 && Math.floor(S.t * 4) % 2;
       HEART.forEach((row, y) => [...row].forEach((v, x) => { if (v === '1') rect(ox + x, oy + y, 1, 1, on ? (blink ? COL.gold : COL.red) : '#3a3040'); }));
     }
-    if (S.patience === 1) { const w = tw('종결 경고', true) + 8; rect(55, 3, w, 14, COL.red); text('종결 경고', 59, 3, COL.text, { bold: true }); }
+    if (S.patience === 1) { const x = 5 + maxPatience() * 10, w = tw('종결 경고', true) + 8; rect(x, 3, w, 14, COL.red); text('종결 경고', x + 4, 3, COL.text, { bold: true }); }
     const can = S.mode === 'line' || S.mode === 'cross' || S.mode === 'inv';
     button(113, 3, 40, 16, '메뉴', openMenu, { off: !!S.overlay || !!S.slotView });
     button(157, 3, 45, 16, keyHint('기록', 'L'), openLog, { off: !!S.overlay || !S.log.length });
@@ -1330,12 +1352,13 @@
   function drawEnd() {
     rect(0, 0, W, H, COL.night);
     const e = S.end, st = S.stats || { wrongs: 0, hints: 0, overs: 0, sec: 0 };
-    text(e.title, 160, 22, e.result === 'win' ? COL.gold : COL.red, { align: 'center', bold: true, scale: 3, outline: COL.ink });
-    wrap(e.text || '', 280).forEach((s, i) => text(s, 160, 68 + i * 14, COL.text, { align: 'center' }));
+    text(e.title, 160, 14, e.result === 'win' ? COL.gold : COL.red, { align: 'center', bold: true, scale: 3, outline: COL.ink });
+    wrap(e.text || '', 280).slice(0, 2).forEach((s, i) => text(s, 160, 56 + i * 14, COL.text, { align: 'center' }));
     // 결과 요약 — 카페에 공유하기 좋게
-    frameBox(70, 90, 180, 40);
-    text(`실수 ${st.wrongs}회 · 힌트 ${st.hints}번 · 패소 ${st.overs}번`, 160, 96, COL.text, { align: 'center' });
-    text(`플레이 시간 ${Math.floor(st.sec / 60)}분 ${String(Math.round(st.sec % 60)).padStart(2, '0')}초`, 160, 111, COL.dim, { align: 'center' });
+    frameBox(60, 88, 200, 50);
+    text(`난이도 ${DIFFS[difficulty].label}`, 160, 92, COL.gold, { align: 'center', bold: true });
+    text(`실수 ${st.wrongs}회 · 힌트 ${st.hints}번 · 패소 ${st.overs}번`, 160, 107, COL.text, { align: 'center' });
+    text(`플레이 시간 ${Math.floor(st.sec / 60)}분 ${String(Math.round(st.sec % 60)).padStart(2, '0')}초`, 160, 121, COL.dim, { align: 'center' });
     button(64, 142, 94, 18, '결과 복사', copyResult);
     button(162, 142, 94, 18, '타이틀로', toTitle);
     text(`${FEEDBACK} · 제작 ${MAKER}`, 160, 166, COL.dim, { align: 'center', scale: 10 / 12 });
