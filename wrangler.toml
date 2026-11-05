@@ -1,0 +1,10 @@
+# Cloudflare Pages 설정(2026-11-05). 집계 함수(functions/api/hit.js)가 D1 데이터베이스를 쓰게 묶는다.
+# 올리는 폴더는 tools/deploy_cf.sh가 만들어 넘긴다.
+name = "dorothy-trial"
+pages_build_output_dir = "dist"
+compatibility_date = "2026-11-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "trial-stats"
+database_id = "f8fe3a3a-2e8a-40bf-bfc9-df335d82ccff"

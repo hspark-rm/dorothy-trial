@@ -9,4 +9,6 @@ DIST="$(mktemp -d)/dist"
 mkdir -p "$DIST"
 rsync -a --exclude 'raw/' --exclude '.DS_Store' "$ROOT/assets" "$ROOT/data" "$ROOT/src" "$DIST/"
 cp "$ROOT/index.html" "$ROOT/og.png" "$ROOT/LICENSE" "$DIST/"
+# 저장소 루트에서 실행해야 functions/(집계 함수)와 wrangler.toml(D1 연결)이 함께 올라간다
+cd "$ROOT"
 "$WRANGLER" pages deploy "$DIST" --project-name "$PROJECT" --branch main --commit-dirty=true

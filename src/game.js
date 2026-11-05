@@ -24,6 +24,19 @@
   const scriptHash = (() => { let h = 5381; const t = JSON.stringify(CASE.script); for (let i = 0; i < t.length; i++) h = ((h * 33) ^ t.charCodeAt(i)) >>> 0; return h.toString(36); })();
   const GAME = CASE.gameId || 'nayuta-trial'; // 저장·설정 이름 앞부분. 다른 게임과 저장이 섞이지 않게
   const SAVE_KEY = GAME + '.save.v1.' + scriptHash;
+  // 익명 방문 집계(2026-11-05): 브라우저마다 무작위 번호 하나만 보내고, 종류별로 한 번만 센다.
+  // 공개 주소(pages.dev)에서만 보낸다. 주소에 ?me를 붙여 한 번 열면 그 브라우저는 집계에서 빠진다(제작자 본인용)
+  const STAT_KEY = GAME + '.stat';
+  function stat(kind) {
+    try {
+      if (new URLSearchParams(location.search).has('me')) localStorage.setItem(STAT_KEY, 'me');
+      let v = localStorage.getItem(STAT_KEY);
+      if (v === 'me' || !location.hostname.endsWith('.pages.dev') || !navigator.sendBeacon) return;
+      if (!v) { v = crypto.randomUUID(); localStorage.setItem(STAT_KEY, v); }
+      navigator.sendBeacon('/api/hit', JSON.stringify({ g: GAME, v, k: kind }));
+    } catch (e) { /* 집계는 게임과 무관하므로 실패해도 넘어간다 */ }
+  }
+  stat('visit');
   // 난이도: 하트 수와 힌트 양이 달라진다. easy 줄(대본의 easy: true)은 쉬움에서만 나온다
   const DIFFS = {
     easy:   { label: '쉬움',   hearts: 7, hints: 2 },
@@ -472,7 +485,7 @@
         S.demand = op;
         sub([{ who: op.who, face: op.face, line: op.line }], () => openOverlay('demand'));
         return true;
-      case 'end': S.scene = 'end'; S.end = op; lockInput(); clearSave(); if (op.result === 'win') SFX.fanfare(); return true;
+      case 'end': S.scene = 'end'; S.end = op; lockInput(); clearSave(); stat('finish'); if (op.result === 'win') SFX.fanfare(); return true;
       case 'choice': S.choice = { op, sel: 0 }; S.mode = 'choice'; return true;
       default: console.warn('모르는 명령', op); return false;
     }
@@ -803,6 +816,7 @@
     if (!label) { begin(null); return; }
     wrongCount = new WeakMap();
     begin({ pc: labels.get(label), ev: [], bg: 'court', stats: { wrongs: 0, hints: 0, overs: 0, sec: 0 }, hinted: true });
+    stat('start');
   }
   function startNew(label) {
     if (!CASE.askName || !document.body) { startAt(label); return; }
