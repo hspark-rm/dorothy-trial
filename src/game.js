@@ -151,11 +151,11 @@
     const c = mk(cw, ch), x = c.getContext('2d', { willReadFrequently: true });
     x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high';
     x.drawImage(im, src.x, src.y, src.w, src.h, 0, 0, cw, ch);
-    if (colors) {
-      const d = x.getImageData(0, 0, cw, ch);
-      quantize(d.data, colors);
-      x.putImageData(d, 0, 0);
-    }
+    // 배경 지우기가 남긴 반투명 픽셀은 뒤 배경이 비쳐 그림이 깨져 보인다 → 투명/불투명 둘로만 나눈다
+    const d = x.getImageData(0, 0, cw, ch);
+    if (colors) quantize(d.data, colors);
+    else for (let i = 3; i < d.data.length; i += 4) d.data[i] = d.data[i] < 128 ? 0 : 255;
+    x.putImageData(d, 0, 0);
     return c;
   }
   // 투명 여백을 잘라 낸 실제 그림 범위
