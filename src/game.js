@@ -278,7 +278,7 @@
     for (const op of f.list.slice(f.pc, f.pc + AHEAD)) {
       if (op.who && !op.op) want(op.who, op.face);
       else if (op.op === 'testimony') op.statements.forEach((s) => want(op.witness, s.face));
-      else if (op.op === 'bg') wantBg(op.id);
+      else if (op.op === 'bg') wantBg(op.art || op.id);
       else if (op.op === 'investigate') Object.values(op.places).forEach((p) => { wantBg(p.bg); if (p.who) want(p.who); });
     }
   }
@@ -341,7 +341,7 @@
     if (S.scene !== 'play' || S.mode === 'chapter') return null;
     if (S.inv) return 'invest';
     if (S.bg === 'void' || S.bg === 'nightmare' || S.bg === 'night') return 'mystery';
-    if (S.bg === 'lobby') return 'title';
+    if (S.bg === 'lobby' || S.bg === 'epi_plaza' || S.bg === 'rooftop') return 'title'; // 에필로그는 잔잔한 곡
     const fight = S.mode === 'cross' || (S.overlay && S.overlay.purpose !== 'view') || S.demand;
     if (S.patience <= 2 && (fight || S.test)) return 'danger';
     if (fight) return 'cross';
@@ -508,7 +508,8 @@
         sub([...react, got], () => { S.pocket = null; step(); });
         return true;
       }
-      case 'bg': S.bg = op.id; if ((CASE.cg || []).includes(op.id)) S.portrait = null; return false;
+      // art: 같은 장소를 다른 그림으로 보여 줄 때(에필로그의 꽃 핀 광장 등). id는 저장 뼈대에 들어가므로 바꾸지 않고 art만 더한다
+      case 'bg': S.bg = op.art || op.id; if ((CASE.cg || []).includes(S.bg)) S.portrait = null; return false;
       // 저장 지점(모순을 하나 풀 때마다)에서 하트를 다시 채운다. 앞 증언의 실수가 뒤 증언까지 이어지지 않게
       case 'save': S.patience = maxPatience(); save(); return false;
       case 'chapter': S.portrait = null; S.chapter = op; S.mode = 'chapter'; return true;

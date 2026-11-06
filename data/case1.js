@@ -89,7 +89,7 @@ window.CASE = {
     cecil:      { name: '세실',   voice: 340, color: '#c8c8d8' },  // 5심 증인. 에덴 개발자, 조곤조곤한 해요체
     ingrid:     { name: '잉그리드', voice: 220, color: '#c04040' },  // 2심 검사. 엘리시온 대표, 라피의 교관. 명령조 반말, '택티컬'. 증거 진정제를 만든 본인
     iri:        { name: '아이리', voice: 350, color: '#303038' },  // 3심 검사·4심 증인. 오버시어 감찰부대원. 해요체, 비밀을 캐면 숨이 빨라짐. 광장 사건 날 도반 부대에 머리를 맞음(붕대)
-    andersen:   { name: '엔더슨', voice: 170, color: '#6a5a40' },  // 에필로그(재판장 별칭과 별도). 지휘관에게 하게체·'자네', 갓데스에게는 반말
+    andersen:   { name: '엔더슨', voice: 170, color: '#6a5a40' },  // 에필로그(재판장 별칭과 별도). 지휘관에게 하게체·'자네', 갓데스에게는 반말. 도로시는 엔더슨을 '지휘관'으로 부르고, '회의 5분 전' 핑계는 모른다. 100년 전 스노우 화이트는 먹성이 적었고 홍련은 술을 싫어했다 → 지금 모습에 놀람(사용자 지정 2026-11-06)
     rapunzel:   { name: '라푼젤', voice: 290, color: '#e0c070' },  // 5심 증인, 갓데스. 기본형. 플레이어 '형제님', 니케 '자매님', 다정한 존댓말. 단 엔더슨은 '지휘관', 도로시는 '도로시', 스노우 화이트는 '스노우 화이트'(사용자 지정 2026-11-06), 도로시가 살아 있다는 건 알고 있음(원작), 릴리바이스는 '릴리스'(사용자 지정 2026-11-05)
     arcana:     { name: '아르카나', voice: 330, color: '#5a70d0' },  // 5심 첫 증인. 금서고 사서, 이격 「포춘 메이트」
     oswald:     { name: '오스왈드', voice: 180, color: '#6a6a6a', portrait: false },  // 영매로만 등장(그림 = medium_oswald_*). 격식체 '저'. 도로시는 '리더 대행 도로시'/'리더 대행', 갓데스는 '당신들'(원작, '도로시 양' 금지 — 사용자 지정 2026-11-06)
@@ -2797,7 +2797,7 @@ window.CASE = {
         { line: '도로시와는 만날 때마다 말다툼이었네. 성격이 영 안 맞았지.',
           press: [
             { who: 'me', line: '무엇 때문에 다투셨습니까?' },
-            { who: 'hongryeon', face: 'drunk', line: '내가 술을 권하면 차를 내놓고, 내가 칼을 뽑으면 양산을 펴더군. 그게 다툼일세.' },
+            { who: 'hongryeon', face: 'drunk', line: '내가 검 이야기를 꺼내면 차 이야기를 하고, 내가 칼을 뽑으면 양산을 펴더군. 그게 다툼일세.' },
           ] },
         { line: '결국 칼과 총을 맞댄 날이 있었네.',
           press: [
@@ -2807,7 +2807,7 @@ window.CASE = {
         { face: 'drunk', line: '도로시는 진심으로 나를 죽이려 들었네. 총구에 살기가 가득했지.',
           press: [
             { who: 'me', line: '정말 살기였습니까?' },
-            { who: 'hongryeon', face: 'drunk', line: '…술기운에 그리 느꼈을지도 모르지. 허나 총알이 빗발쳤던 건 분명하네.' },
+            { who: 'hongryeon', face: 'drunk', line: '…100년이나 지난 기억이니, 내가 부풀렸을지도 모르지. 허나 총알이 빗발쳤던 건 분명하네.' },
             { op: 'fx', kind: 'stamp', text: '이의 있다!', color: '#3a4a7a' },
             { who: 'burningham', face: 'stern', line: '도, 동료에게 살기를 품는 니케다. 방주의 시민에게는 어떻겠나.' },
             { who: 'me', easy: true, line: '(총알이 빗발쳤다. 그 총알이 어디에 맞았는지는, 칼집이 기억하고 있다.)' },
@@ -3393,7 +3393,7 @@ window.CASE = {
     // ── 재회: 가면을 벗는 재판장 ──
     { who: null, line: '재판장이 천천히 일어섰다. 법정을 나서려던 걸음이, 피고석 앞에서 멈췄다.' },
     { who: 'judge', line: '……메리골드 차, 아직도 좋아하지?' },
-    { who: 'dorothy', face: 'shock', line: '…설마. 설마, 당신….' },
+    { who: 'dorothy', face: 'shock', line: '…설마. 설마, 지휘관….' },
     { op: 'alias', who: 'judge', portrait: 'andersen', name: '엔더슨' },
     { op: 'fx', kind: 'flash' },
     { who: null, color: '#e8c060', line: '두건과 가면이 벗겨졌다. 중앙정부 부사령관 엔더슨. 100년 전, 갓데스 스쿼드의 지휘관.' },
@@ -3402,20 +3402,20 @@ window.CASE = {
     { who: 'judge', face: 'sad', line: '너를 만나면, 방주에 복수하자는 네 말에 넘어갈까 봐 두려웠다. 그래서 도망쳤지. 그게 내 죄다.' },
     { who: 'judge', line: '이번 재판은 얼굴을 보이면 공정할 수 없었어. 그리고 그 기록만큼은, 내 손으로 판결해서 고치고 싶었다.' },
     { who: 'dorothy', face: 'cry', line: '……늦었어요. 너무, 너무 늦었어요.' },
-    { who: 'dorothy', face: 'sad', line: '…피나 무덤에 메리골드를 둔 것도, 당신이죠.' },
+    { who: 'dorothy', face: 'sad', line: '…피나 무덤에 메리골드를 둔 것도, 지휘관이죠.' },
     { who: 'judge', face: 'smile', line: '그 사람이 좋아했다고 들었다. 네 차와 같은 꽃이라.' },
     { who: 'dorothy', face: 'sad', line: '……차는, 받을게요. 용서는 아직이에요.' },
     { who: 'judge', face: 'smile', line: '그거면 됐다.' },
     { who: 'burningham', face: 'smile', line: '…경례까지 했으니, 연기는 이제 끝이군.' },
     { who: 'burningham', line: '공식 기록을 고치려면 재판의 판결이 필요했다. 그리고 판결은, 가장 혹독한 검사가 끝까지 시험한 증거로만 내려져야 했다.' },
     { who: 'burningham', face: 'smile', line: '그래서 내가 검사를 맡았다. 할아버지가 남긴 마지막 숙제였으니까. …그리고 나는, 갓데스의 오랜 팬이다.' },
-    { who: 'dorothy', face: 'shock', line: '……당신들, 처음부터 짜고서.' },
+    { who: 'dorothy', face: 'shock', line: '……지휘관도, 버닝엄도. 처음부터 짜고서.' },
     { who: 'me', line: '(…변호인만 몰랐던 재판이었다. 그래도, 결론을 끌어낸 건 증거였다.)' },
     { op: 'hide' },
 
     // ── 에필로그: 광장, 승리의 여신상 앞 ──
     { op: 'label', id: 'epilogue' },
-    { op: 'bg', id: 'plaza' },
+    { op: 'bg', id: 'plaza', art: 'epi_plaza' }, // 꽃으로 덮인 여신상(에필로그 전용 그림, 2026-11-06)
     { op: 'chapter', text: '에필로그', sub: '승리의 여신에게' },
     { op: 'alias', who: 'dorothy', portrait: 'dorothy_alt', name: '도로시' },
     { who: null, line: '며칠 뒤, 중앙정부 광장. 방주는 처음으로 갓데스 스쿼드를 정식으로 맞이했다.' },
@@ -3448,19 +3448,19 @@ window.CASE = {
     { op: 'hide' },
 
     // ── 그날 밤: 엔더슨과 갓데스 스쿼드의 재회 ──
-    { op: 'bg', id: 'night' },
+    { op: 'bg', id: 'night', art: 'rooftop' }, // 찻잔 여섯 개가 놓인 옥상(에필로그 전용 그림, 2026-11-06)
     { op: 'chapter', text: '그날 밤', sub: '100년 만의 찻자리' },
     { who: null, line: '그날 밤. 방주 외곽의 조용한 옥상. 낡은 탁자 위에 찻잔 여섯 개와, 메리골드 차가 놓였다.' },
     { who: 'andersen', face: 'smile', line: '다들 모였군. …아니, 다는 아니지. 릴리스와 레드 후드 몫의 잔도 놓아 뒀다.' },
     { who: 'rapunzel', face: 'smile', line: '지휘관, 여전히 그런 건 꼼꼼하시네요. 주님께서도 기뻐하실 거예요.' },
     { who: 'snowwhite', line: '지휘관. 과자는 없나.' },
-    { who: 'andersen', face: 'smile', line: '스노우, 너는 100년이 지나도 그 말부터구나. 여기 있다.' },
-    { who: 'snowwhite', line: '……맛있다. 지휘관은 여전히 과자를 잘 고른다.' },
+    { who: 'andersen', line: '…스노우? 예전엔 밥도 반은 남기던 녀석이, 과자를 찾아? …여기 있다.' },
+    { who: 'snowwhite', line: '지상에선 먹을 수 있을 때 먹어야 했다. …맛있다. 더 없나.' },
     { who: 'hongryeon', face: 'drunk', line: '허허, 차도 좋지만 이런 밤엔 한 잔이 있어야 하네. 지휘관도 한 잔 하겠는가?' },
-    { who: 'andersen', line: '네 술은 100년 전에도 독했지. …한 잔만 받지.' },
-    { who: 'dorothy', face: 'smile', line: '…당신이 웃는 얼굴은 오랜만에 보네요. 회의가 5분 뒤에 있다는 핑계는, 오늘은 안 통해요.' },
-    { who: 'andersen', face: 'smile', line: '들켰나. 오늘은 회의 같은 건 없다. 약속하지.' },
-    { who: 'dorothy', line: '당신의 약속은 100년짜리라서 못 믿겠어요.' },
+    { who: 'andersen', face: 'smile', line: '홍련, 너는 술 냄새만 맡아도 얼굴을 찌푸리던 녀석이었잖아. …너희, 대체 어쩌다 이 모양이 된 거냐.' },
+    { who: 'dorothy', face: 'smile', line: '100년이에요, 지휘관. 다들 조금씩 변했어요. …지휘관이 웃는 얼굴만 그대로네요.' },
+    { who: 'andersen', face: 'smile', line: '그런가. …오늘은 어디에도 가지 않는다. 약속하지.' },
+    { who: 'dorothy', line: '지휘관의 약속은 100년짜리라서 못 믿겠어요.' },
     { who: 'andersen', face: 'sad', line: '……그 말은, 평생 들어도 할 말이 없구나.' },
     { who: 'dorothy', face: 'smile', line: '그러니까 보상은 이걸로 할게요. 매주 한 번, 이 차. 빠지면 안 돼요.' },
     { who: 'andersen', face: 'smile', line: '…그거라면 지킬 수 있겠다. 이번엔 꼭.' },
