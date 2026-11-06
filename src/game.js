@@ -1346,7 +1346,7 @@
     row.forEach(([label, fn], i) => button(x0 + i * (bw + gap), 130, bw, 18, label, fn));
     text(CREDIT, 160, 152, COL.dim, { align: 'center' });
     text(NOTICE, 160, 166, '#6a6890', { align: 'center', scale: 10 / 12 });
-    text('v0.1', 316, 2, '#4a4870', { align: 'right' });
+    text('v0.2', 316, 2, '#4a4870', { align: 'right' });
     if (dataErrors.length) text(`데이터 오류 ${dataErrors.length}건 (콘솔 확인)`, 4, 2, COL.red);
   }
   // 패소 화면: 나유타가 나와 태연하게 위로한다(왼쪽 초상, 오른쪽 버튼, 아래 대사)
