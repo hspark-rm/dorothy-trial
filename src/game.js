@@ -27,7 +27,12 @@
   // 익명 방문 집계(2026-11-05): 브라우저마다 무작위 번호 하나만 보내고, 종류별로 한 번만 센다.
   // 공개 주소(pages.dev)에서만 보낸다. 주소에 ?me를 붙여 한 번 열면 그 브라우저는 집계에서 빠진다(제작자 본인용)
   const STAT_KEY = GAME + '.stat';
+  // 이탈 지점 집계(2026-11-06): title 타이틀이 그려짐 · rotate 세로 화면 안내가 뜸 · namebox 이름 칸이 뜸 · from_<심> 시작한 곳 ·
+  // reach_<심> 그 심에 닿음 · finish_<심> 엔딩(어느 심부터 시작했는지). 한 페이지에서 같은 종류는 한 번만 보낸다
+  const statSent = new Set();
   function stat(kind) {
+    if (statSent.has(kind)) return;
+    statSent.add(kind);
     try {
       if (new URLSearchParams(location.search).has('me')) localStorage.setItem(STAT_KEY, 'me');
       let v = localStorage.getItem(STAT_KEY);
@@ -254,6 +259,21 @@
     const c = portraitImg(img, id, face);
     return c === null && img !== id && !alias(id).portrait ? portraitImg(id, id, face) : c;
   }
+  // 앞으로 나올 그림을 미리 받아 둔다(2026-11-06). 그림은 처음 그릴 때 받으므로, 느린 휴대폰에서 인물이 잠깐 비어 보일 수 있다
+  const AHEAD = 40;
+  function prefetch() {
+    const f = S.stack[S.stack.length - 1];
+    if (!f) return;
+    const want = (who, face) => { const ch = CASE.chars[who]; if (ch && ch.portrait !== false) portrait(who, face || 'normal'); };
+    // void·nightmare·night는 그림 파일 없이 코드로 그리는 배경이다
+    const wantBg = (id) => { if (id && !['void', 'nightmare', 'night'].includes(id)) asset(`bg:${id}`, `assets/bg/${id}.png`, (i) => coverFrom(i, W, H)); };
+    for (const op of f.list.slice(f.pc, f.pc + AHEAD)) {
+      if (op.who && !op.op) want(op.who, op.face);
+      else if (op.op === 'testimony') op.statements.forEach((s) => want(op.witness, s.face));
+      else if (op.op === 'bg') wantBg(op.id);
+      else if (op.op === 'investigate') Object.values(op.places).forEach((p) => { wantBg(p.bg); if (p.who) want(p.who); });
+    }
+  }
 
   // ───────── 소리: 웹 오디오로 만든 짧은 칩튠 효과음 ─────────
   let AC = null, muted = false;
@@ -393,7 +413,10 @@
     fx: { shake: 0, flash: 0, stamp: null, murmur: null }, t: 0,
     choice: null, log: [], logView: null, stats: null, toast: null,
     inv: null, // 조사 파트: { op, place, seen, talked, visited, menu, sel, acts }
+    from: null, // 이번 판을 시작한 심(trial1… / 새로 시작이면 trial1). 엔딩 집계에 붙인다
+    evBase: 0, // 지금 심이 시작될 때의 증거 수. 증거 목록은 이 뒤(지금 심의 증거)를 먼저 보여 준다
   };
+  const TRIAL_LABELS = new Set((CASE.trials || []).map((t) => t.label));
   // 증거품을 받을 때 변호인이 하는 말(차례로 돌아가며 씀). 명령에 line이 있으면 그것을 쓴다
   const POCKET_LINES = [
     '(…증거품? 이게 왜 내 주머니에 있지?)',
@@ -432,7 +455,9 @@
   function exec(op) {
     if (op.who !== undefined && !op.op) { startLine(op); return true; }
     switch (op.op) {
-      case 'label': return false;
+      case 'label':
+        if (TRIAL_LABELS.has(op.id)) { S.evBase = S.ev.length; stat('reach_' + op.id); }
+        return false;
       case 'goto': jumpTo(op.id); return false;
       case 'hide': S.portrait = null; return false;
       // 별칭: { op: 'alias', who, portrait, name, voice } — 그림 id·이름을 바꿈. portrait 없이 쓰면 원래대로
@@ -485,7 +510,7 @@
         S.demand = op;
         sub([{ who: op.who, face: op.face, line: op.line }], () => openOverlay('demand'));
         return true;
-      case 'end': S.scene = 'end'; S.end = op; lockInput(); clearSave(); stat('finish'); if (op.result === 'win') SFX.fanfare(); return true;
+      case 'end': S.scene = 'end'; S.end = op; lockInput(); clearSave(); stat('finish'); stat('finish_' + (S.from || 'unknown')); if (op.result === 'win') SFX.fanfare(); return true;
       case 'choice': S.choice = { op, sel: 0 }; S.mode = 'choice'; return true;
       default: console.warn('모르는 명령', op); return false;
     }
@@ -494,6 +519,7 @@
   // ───────── 대사 ─────────
   const LINE_W = 296, LINES = 3, CPS = 45;
   function startLine(op) {
+    prefetch();
     const ch = op.who ? CASE.chars[op.who] : null;
     if (ch && ch.portrait !== false && !(CASE.cg || []).includes(S.bg)) S.portrait = { id: op.who, face: op.face || 'normal' };
     const think = op.who === 'me' && op.line.startsWith('(');
@@ -601,13 +627,23 @@
     S.overlay = null; S.mode = 'idle';
     sub(S.patience > 0 ? [...ls, ...warnFor(S.patience), ...hintFor(op)] : ls, () => { if (S.patience <= 0) gameOver(); else then(); });
   }
+  // 아깝게 틀렸을 때 변호인의 혼잣말(2026-11-06). 쉬움은 둘 다, 보통은 '증거는 맞고 문장이 다름'만, 어려움은 없음
+  const NEAR_EV = ['(증거는 제대로 고른 것 같다. 겨눌 증언이 다르다.)', '(이 증거가 쓰일 곳은 이 문장이 아니다. 다른 증언을 다시 보자.)'];
+  const NEAR_ST = ['(이 증언이 걸리는 건 맞다. …하지만 이 증거로는 찌를 수 없다.)', '(수상한 말은 이게 맞다. 맞는 증거를 다시 찾자.)'];
+  function nearMiss(st, id) {
+    if (difficulty === 'hard') return [];
+    const other = S.test.op.statements.some((s) => s !== st && s.present && s.present[id]);
+    if (other) return [{ who: 'me', line: pick(NEAR_EV, 'nearEv') }];
+    if (st.present && difficulty === 'easy') return [{ who: 'me', line: pick(NEAR_ST, 'nearSt') }];
+    return [];
+  }
   function present(id) {
     const ov = S.overlay;
     if (!ov || id === undefined) return; // 이미 닫혔거나(두 번 누름) 낼 증거가 없음
     if (ov.purpose === 'cross') {
       const st = S.test.op.statements[S.test.idx];
       const to = st.present && st.present[id];
-      if (to) { S.overlay = null; jumpTo(to); SFX.ok(); step(); } else wrong(S.test.op.wrong, enterCross, S.test.op);
+      if (to) { S.overlay = null; jumpTo(to); SFX.ok(); step(); } else wrong([...(S.test.op.wrong || []), ...nearMiss(st, id)], enterCross, S.test.op);
     } else if (ov.purpose === 'demand') {
       const d = S.demand;
       if (id === d.answer) { S.overlay = null; jumpTo(d.ok); SFX.ok(); step(); } else wrong(d.wrong, () => openOverlay('demand'), d);
@@ -615,9 +651,16 @@
   }
 
   // ───────── 증거 목록 ─────────
+  // 지금 보이는 증거: 기본은 지금 심에서 모은 것, old면 앞 심에서 모은 것(앞 심 증거로 푸는 문제는 없다, 2026-11-06 확인)
+  const evList = (ov) => (ov && ov.old ? S.ev.slice(0, S.evBase) : S.ev.slice(S.evBase));
+  function toggleOldEv() {
+    const ov = S.overlay;
+    if (!ov || !S.evBase) return;
+    ov.old = !ov.old; ov.sel = 0; ov.page = 0; SFX.select();
+  }
   function openOverlay(purpose) {
     if (S.overlay) return;
-    S.overlay = { purpose, sel: 0 }; // purpose: view | cross | demand
+    S.overlay = { purpose, sel: 0, old: false }; // purpose: view | cross | demand
     if (S.mode !== 'line' && S.mode !== 'inv') S.mode = 'idle';
     SFX.select();
   }
@@ -687,7 +730,7 @@
   // ───────── 저장 1칸 ─────────
   function snapshot() {
     const inv = S.inv && { id: S.inv.op.id, place: S.inv.place, seen: { ...S.inv.seen }, talked: { ...S.inv.talked }, visited: [...S.inv.visited] };
-    return { pc: S.stack[0].pc, ev: [...S.ev], patience: S.patience, hinted: S.hinted, bg: S.bg, pockets: S.pockets, stats: { ...S.stats }, inv, alias: { ...(S.alias || {}) }, name: playerName, diff: difficulty };
+    return { pc: S.stack[0].pc, ev: [...S.ev], patience: S.patience, hinted: S.hinted, bg: S.bg, pockets: S.pockets, stats: { ...S.stats }, inv, alias: { ...(S.alias || {}) }, name: playerName, diff: difficulty, from: S.from, evBase: S.evBase };
   }
   function save() {
     S.saved = snapshot();
@@ -727,6 +770,7 @@
     ['저장하기', () => openSlots('save'), () => canSlotSave()],
     ['불러오기', () => openSlots('load'), () => true],
     ['타이틀로', () => { S.slotView = { mode: 'quit', sel: 0 }; SFX.select(); }, () => true],
+    ['설문 보내기', openSurvey, () => true],
     ['닫기', () => { S.slotView = null; }, () => true],
   ];
   function slotBack() { S.slotView = S.slotView && S.slotView.from === 'menu' ? { mode: 'menu', sel: 0 } : null; }
@@ -759,6 +803,9 @@
     S.bg = (from && from.bg) || 'court';
     S.pockets = (from && from.pockets) || 0;
     S.alias = from && from.alias ? { ...from.alias } : {};
+    // 옛 저장에는 시작한 심·증거 기준점이 없다: 엔딩은 unknown으로, 증거 목록은 전부 지금 심 것으로 본다
+    S.from = from ? from.from || null : 'trial1';
+    S.evBase = from && from.evBase <= S.ev.length ? from.evBase : 0;
     S.pocket = null;
     S.line = null; S.portrait = null; S.test = null; S.overlay = null; S.demand = null;
     S.mode = 'idle';
@@ -813,14 +860,16 @@
   }
   let nameBox = null;
   function startAt(label) {
-    if (!label) { begin(null); return; }
+    // 새로 시작도 시작으로 센다(2026-11-06 전에는 심 선택만 셌음)
+    if (!label) { begin(null); stat('start'); stat('from_new'); return; }
     wrongCount = new WeakMap();
-    begin({ pc: labels.get(label), ev: [], bg: 'court', stats: { wrongs: 0, hints: 0, overs: 0, sec: 0 }, hinted: true });
-    stat('start');
+    begin({ pc: labels.get(label), ev: [], bg: 'court', stats: { wrongs: 0, hints: 0, overs: 0, sec: 0 }, hinted: true, from: label });
+    stat('start'); stat('from_' + label);
   }
   function startNew(label) {
     if (!CASE.askName || !document.body) { startAt(label); return; }
     if (nameBox) return;
+    stat('namebox');
     nameBox = document.createElement('div');
     nameBox.style.cssText = 'position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(7,6,12,.78);z-index:10;font-family:Galmuri11,sans-serif';
     // 글자 크기는 화면 너비를 따라간다(휴대폰 가로 화면에서도, FHD 모니터에서도 읽기 좋게)
@@ -853,10 +902,58 @@
     });
     setTimeout(() => { input.focus(); input.select(); }, 30);
   }
+  // ───────── 짧은 설문(2026-11-06): 게임 중 메뉴·엔딩 화면에서 연다. /api/survey로 보낸다 ─────────
+  let surveyBox = null;
+  function openSurvey() {
+    if (surveyBox || !document.body) return;
+    S.slotView = null;
+    surveyBox = document.createElement('div');
+    surveyBox.style.cssText = 'position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(7,6,12,.82);z-index:10;font-family:Galmuri11,sans-serif';
+    const pill = (name, v, label) => `<button type="button" data-${name}="${v}" style="font:inherit;font-size:0.8em;padding:0.15em 0.6em;border:0.1em solid #8a86a8;background:#07060c;color:#f4f0e6">${label}</button>`;
+    const area = (name, ph) => `<textarea name="${name}" maxlength="500" rows="2" placeholder="${ph}" style="font:inherit;font-size:0.75em;width:100%;box-sizing:border-box;padding:0.3em;background:#07060c;color:#f4f0e6;border:0.1em solid #8a86a8;resize:none"></textarea>`;
+    surveyBox.innerHTML = '<form style="font-size:clamp(13px,1.9vw,36px);width:min(34em,92vw);max-height:94vh;overflow:auto;box-sizing:border-box;background:#10101c;border:0.15em solid #e8c060;padding:0.8em 1.2em;display:flex;flex-direction:column;gap:0.45em;color:#f4f0e6">' +
+      '<div style="color:#e8c060;font-size:1.1em;text-align:center">짧은 설문 (1분)</div>' +
+      '<div>재미있었나요?</div><div style="display:flex;gap:0.3em;flex-wrap:wrap">' +
+      ['1 별로', '2', '3 보통', '4', '5 최고'].map((l, i) => pill('fun', i + 1, l)).join('') + '</div>' +
+      '<div>난이도는 어땠나요?</div><div style="display:flex;gap:0.3em;flex-wrap:wrap">' +
+      [['easy', '쉬웠다'], ['ok', '적당했다'], ['hard', '어려웠다']].map(([v, l]) => pill('diff', v, l)).join('') + '</div>' +
+      '<div>막혔거나 이상했던 곳</div>' + area('stuck', '예: 3심 미란다 증언에서 무슨 증거를 내야 할지 몰랐다') +
+      '<div>바라는 점 · 하고 싶은 말</div>' + area('wish', '자유롭게 적어 주세요') +
+      '<div style="font-size:0.62em;color:#8a86a8">이름·연락처 같은 개인정보는 적지 마세요. 지금 진행 위치, 난이도, 실수·힌트 횟수가 함께 보내집니다.</div>' +
+      '<div style="display:flex;gap:0.6em;justify-content:center"><button style="font:inherit;padding:0.2em 1.4em;background:#e8c060;color:#0d0b14;border:0">보내기</button>' +
+      '<button type="button" class="close" style="font:inherit;padding:0.2em 1.4em;background:#07060c;color:#f4f0e6;border:0.1em solid #8a86a8">닫기</button></div></form>';
+    document.body.appendChild(surveyBox);
+    const ans = { fun: null, diff: null };
+    const paint = () => surveyBox.querySelectorAll('[data-fun],[data-diff]').forEach((b) => {
+      const on = b.dataset.fun ? Number(b.dataset.fun) === ans.fun : b.dataset.diff === ans.diff;
+      b.style.background = on ? '#e8c060' : '#07060c'; b.style.color = on ? '#0d0b14' : '#f4f0e6';
+    });
+    surveyBox.querySelectorAll('[data-fun]').forEach((b) => b.addEventListener('click', () => { ans.fun = Number(b.dataset.fun); paint(); }));
+    surveyBox.querySelectorAll('[data-diff]').forEach((b) => b.addEventListener('click', () => { ans.diff = b.dataset.diff; paint(); }));
+    const close = () => { if (surveyBox) { surveyBox.remove(); surveyBox = null; } };
+    surveyBox.querySelector('.close').addEventListener('click', close);
+    surveyBox.querySelector('form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const f = e.target, stuck = f.stuck.value.trim(), wish = f.wish.value.trim();
+      if (!ans.fun && !ans.diff && !stuck && !wish) { S.toast = { t: 1.6, text: '한 가지 이상 답해 주세요' }; return; }
+      let v = null;
+      try { v = localStorage.getItem(STAT_KEY); } catch (err) { /* 번호 없이 보냄 */ }
+      const st = S.stats || { wrongs: 0, hints: 0, overs: 0, sec: 0 };
+      const body = {
+        g: GAME, v: v && v !== 'me' ? v : null, me: v === 'me', fun: ans.fun, diff: ans.diff, stuck, wish,
+        where: S.scene === 'end' ? '엔딩' : S.scene === 'play' ? trialOf(S.stack[0] ? S.stack[0].pc : 0) : S.scene,
+        level: difficulty, wrongs: st.wrongs, hints: st.hints, overs: st.overs, min: Math.round(st.sec / 60),
+      };
+      close();
+      fetch('/api/survey', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) })
+        .then((r) => { S.toast = { t: 2, text: r.ok ? '보냈습니다. 고맙습니다!' : '보내지 못했습니다' }; })
+        .catch(() => { S.toast = { t: 2, text: '보내지 못했습니다' }; });
+    });
+  }
   let titleSel = 0; // 타이틀에서 키보드로 고른 버튼: 0 새로 시작, 1 이어하기
   addEventListener('keydown', (e) => {
     // 길게 누르기 반복, 브라우저 단축키(Cmd/Ctrl+F 등), 세로 화면, 시작 전 입력은 무시한다
-    if (nameBox || e.repeat || e.metaKey || e.ctrlKey || e.altKey || !started || portraitHeld()) return;
+    if (nameBox || surveyBox || e.repeat || e.metaKey || e.ctrlKey || e.altKey || !started || portraitHeld()) return;
     if (S.scene !== 'play' && performance.now() < lockUntil) return;
     audio();
     const k = e.key;
@@ -911,11 +1008,12 @@
     }
     const ov = S.overlay;
     if (ov) {
-      const n = S.ev.length;
+      const list = evList(ov), n = list.length;
+      if (k === 'Tab' || k === 'q' || k === 'Q') { toggleOldEv(); e.preventDefault(); return; }
       if (!n) { if (k === 'Escape' || k === 'e' || k === 'E' || k === 'x' || k === 'X') closeOverlay(); e.preventDefault(); return; }
       if (k === 'ArrowUp' || k === 'ArrowLeft') { ov.sel = (ov.sel - 1 + n) % n; ov.page = 0; SFX.select(); }
       else if (k === 'ArrowDown' || k === 'ArrowRight') { ov.sel = (ov.sel + 1) % n; ov.page = 0; SFX.select(); }
-      else if ((k === 'Enter' || k === ' ' || k === 'z' || k === 'Z') && ov.purpose !== 'view') present(S.ev[ov.sel]);
+      else if ((k === 'Enter' || k === ' ' || k === 'z' || k === 'Z') && ov.purpose !== 'view') present(list[ov.sel]);
       else if (k === 'Escape' || k === 'e' || k === 'E' || k === 'x' || k === 'X') closeOverlay();
       e.preventDefault();
       return;
@@ -1259,12 +1357,16 @@
     const ov = S.overlay;
     rect(0, 0, W, H, 'rgba(7,6,12,0.72)');
     frameBox(12, 10, 296, 160);
-    const head = ov.purpose === 'view' ? '증거 목록' : '어떤 증거를 낼까?';
+    const list = evList(ov);
+    const head = ov.old ? '앞 심에서 모은 증거' : ov.purpose === 'view' ? '증거 목록' : '어떤 증거를 낼까?';
     text(head, 20, 15, COL.gold, { bold: true });
-    if (ov.sel >= S.ev.length) ov.sel = 0;
+    // 앞 심의 증거는 따로 둔다(5심이면 30개가 넘어 고르기 어려움). Tab·Q 또는 이 버튼으로 오간다
+    if (S.evBase) button(196, 13, 106, 15, ov.old ? `지금 심 증거 ${S.ev.length - S.evBase}` : `앞 심 증거 ${S.evBase}`, toggleOldEv, { sel: ov.old });
+    if (ov.sel >= list.length) ov.sel = 0;
+    if (!list.length) text('아직 이 심에서 모은 증거가 없다.', 20, 40, COL.dim, { scale: 10 / 12 });
     // 증거가 많으면 6개씩 나눠 보여 주고 ▲▼로 넘긴다(고른 증거가 있는 쪽을 보여 줌)
-    const PER = 6, pages = Math.max(1, Math.ceil(S.ev.length / PER)), first = Math.floor(ov.sel / PER) * PER;
-    S.ev.slice(first, first + PER).forEach((id, k) => {
+    const PER = 6, pages = Math.max(1, Math.ceil(list.length / PER)), first = Math.floor(ov.sel / PER) * PER;
+    list.slice(first, first + PER).forEach((id, k) => {
       const i = first + k, y = 32 + k * 18, on = i === ov.sel;
       const hot = pointer.x >= 18 && pointer.x < 118 && pointer.y >= y && pointer.y < y + 16;
       rect(18, y, 100, 16, on ? COL.gold : hot ? '#2c2a44' : '#1a1830');
@@ -1279,7 +1381,7 @@
       button(18, 144, 48, 18, `▲ ${pg + 1}/${pages}`, () => go(-1));
       button(70, 144, 48, 18, '▼', () => go(1));
     }
-    const id = S.ev[ov.sel];
+    const id = list[ov.sel];
     if (id) {
       const ev = CASE.evidence[id];
       rect(124, 30, 178, 1, COL.trim);
@@ -1294,7 +1396,7 @@
       desc.slice(ov.page * per, ov.page * per + per).forEach((s, i) => text(s, 128, 68 + i * 11, COL.text, { scale: DS }));
       if (pages > 1) button(128, 148, 60, 18, `설명 ${ov.page + 1}/${pages}`, () => { ov.page = (ov.page + 1) % pages; SFX.select(); });
     }
-    if (ov.purpose !== 'view') button(192, 148, 54, 18, keyHint('제시', 'Z'), () => present(S.ev[ov.sel]), { off: !S.ev.length });
+    if (ov.purpose !== 'view') button(192, 148, 54, 18, keyHint('제시', 'Z'), () => present(list[ov.sel]), { off: !list.length });
     if (ov.purpose !== 'demand') button(250, 148, 52, 18, '닫기', closeOverlay);
   }
   function drawStamp() {
@@ -1373,8 +1475,9 @@
     text(`난이도 ${DIFFS[difficulty].label}`, 160, 92, COL.gold, { align: 'center', bold: true });
     text(`실수 ${st.wrongs}회 · 힌트 ${st.hints}번 · 패소 ${st.overs}번`, 160, 107, COL.text, { align: 'center' });
     text(`플레이 시간 ${Math.floor(st.sec / 60)}분 ${String(Math.round(st.sec % 60)).padStart(2, '0')}초`, 160, 121, COL.dim, { align: 'center' });
-    button(64, 142, 94, 18, '결과 복사', copyResult);
-    button(162, 142, 94, 18, '타이틀로', toTitle);
+    button(64, 142, 62, 18, '결과 복사', copyResult);
+    button(129, 142, 62, 18, '설문', openSurvey);
+    button(194, 142, 62, 18, '타이틀로', toTitle);
     text(`${FEEDBACK} · 제작 ${MAKER}`, 160, 166, COL.dim, { align: 'center', scale: 10 / 12 });
   }
   function drawChoice() {
@@ -1388,12 +1491,12 @@
     const v = S.slotView, saving = v.mode === 'save';
     rect(0, 0, W, H, 'rgba(7,6,12,0.85)');
     if (v.mode === 'menu') {
-      frameBox(90, 30, 140, 120);
-      text('메뉴', 160, 36, COL.gold, { bold: true, align: 'center' });
+      frameBox(90, 20, 140, 144);
+      text('메뉴', 160, 26, COL.gold, { bold: true, align: 'center' });
       const items = MENU.filter((m) => m[2]());
       MENU.forEach(([label, fn, ok], i) => {
         const j = items.findIndex((m) => m[0] === label);
-        button(110, 56 + i * 22, 100, 18, label, fn, { off: !ok(), sel: j === v.sel && pointer.x < 0 });
+        button(110, 44 + i * 23, 100, 18, label, fn, { off: !ok(), sel: j === v.sel && pointer.x < 0 });
       });
       return;
     }
@@ -1477,8 +1580,8 @@
   function draw() {
     B = [];
     g.setTransform(RES, 0, 0, RES, 0, 0);
-    if (portraitHeld()) drawRotate();
-    else if (S.scene === 'title') { drawTitle(); if (S.slotView) { B = []; drawSlots(); } }
+    if (portraitHeld()) { drawRotate(); stat('rotate'); }
+    else if (S.scene === 'title') { drawTitle(); stat('title'); if (S.slotView) { B = []; drawSlots(); } }
     else if (S.scene === 'skins') drawSkins();
     else if (S.scene === 'select') drawSelect();
     else if (S.scene === 'over') drawOver();
@@ -1522,5 +1625,5 @@
   fonts.then(rewrapLine).catch(() => {});
 
   // 개발 확인용
-  window.__trial = window.__nayuta = { S, step, present, begin, dataErrors, music, resultText, inv: { spots: () => invSpots(), topics: () => invTopics(), moves: () => invMoves(), examine, talk, moveTo, finish: finishInv, ready: () => invReady() } };
+  window.__trial = window.__nayuta = { S, step, present, begin, dataErrors, music, resultText, evList, openSurvey, inv: { spots: () => invSpots(), topics: () => invTopics(), moves: () => invMoves(), examine, talk, moveTo, finish: finishInv, ready: () => invReady() } };
 })();
