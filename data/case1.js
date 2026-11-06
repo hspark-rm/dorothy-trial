@@ -77,7 +77,7 @@ window.CASE = {
     johan:      { name: '요한',   voice: 150, color: '#5a5a6a' },  // 에덴 지휘관. 도로시를 제명함. 중립 증인
     rapi:       { name: '라피',   voice: 300, color: '#c07050' },  // 카운터스. 피해자 증인, 변호를 권함
     anis:       { name: '아니스', voice: 340, color: '#e0b060' },  // 카운터스. 레드 후드의 고향에서 도로시와 맞섬
-    neon:       { name: '네온',   voice: 380, color: '#a0c8f0' },  // 카운터스. 채널 협상에 나섬. 플레이어를 '스승님'
+    neon:       { name: '네온',   voice: 380, color: '#a0c8f0' },  // 카운터스. 채널 협상에 나섬. 플레이어를 '스승님' 잉그리드는 '사장님'(원작은 '잉그리드 님'도 씀, 사용자 지정 2026-11-06)
     doban:      { name: '도반',   voice: 120, color: '#5a6a4a' },  // 4심 검사(중간보스). 광장 사건에서 버닝엄에게 이마를 맞고 죽은 뒤 저승에서 돌아옴(사용자 지정 2026-11-05) — 초상 이마에 총알 구멍. 낮춰 보는 반말
     poli:       { name: '폴리',   voice: 360, color: '#a0b0e0' },  // A.C.P.U. 리더. 해영체("~해용"), "에흉…"
     miranda:    { name: '미란다', voice: 330, color: '#c09070' },  // A.C.P.U. 대원, 실은 감사부 감찰관. 어색한 합니다체, "열심히"
@@ -695,7 +695,7 @@ window.CASE = {
     { op: 'chapter', text: '제2심을 앞두고', sub: '교관의 공소장' },
     { who: null, line: '1심이 끝난 이튿날. 법원 로비에 두 번째 공소장이 붙었다. 검사 이름은 엘리시온 대표, 잉그리드.' },
     { who: 'anis', face: 'shock', line: '지휘관님, 이거 실화야? 잉그리드 사장님이 검사래. 라피 교관이잖아!' },
-    { who: 'neon', face: 'shock', line: '잉그리드 님이 검사석에 서시다니… 화력이 너무 셉니다, 스승님!' },
+    { who: 'neon', face: 'shock', line: '사장님이 검사석에 서시다니… 화력이 너무 셉니다, 스승님!' },
     { who: 'rapi', face: 'stern', line: '…교관님은 제 일을 남에게 맡기지 않는 분입니다. 이번에도 그런 거겠죠.' },
     { who: 'ingrid', line: '잘 알고 있군, 라피.' },
     { op: 'fx', kind: 'murmur', text: '…!' },
@@ -1240,7 +1240,7 @@ window.CASE = {
     { who: 'neon', face: 'shock', line: '스승님… 저 방금 엘리시온 사격장에서 돌아왔어요. 방아쇠 규율 세 시간이요….' },
     { who: 'anis', face: 'smile', line: '쌤통이다. 너 때문에 나 법정에서 거짓말쟁이 될 뻔했잖아.' },
     { who: 'ingrid', line: '세 시간은 짧았다. 다음엔 여섯 시간이다.' },
-    { who: 'neon', face: 'shock', line: '흐아앗! 잉그리드 님, 언제부터 거기 계셨어요?' },
+    { who: 'neon', face: 'shock', line: '흐아앗! 사장님, 언제부터 거기 계셨어요?' },
     { who: 'ingrid', line: '처음부터. …{name}, 하나 알려 두지.' },
     { who: 'ingrid', face: 'stern', line: '다음 검사, 오버시어의 아이리. 감찰부는 엘리시온도 뒤진 적이 있다. 서류 한 장까지 다 읽는 녀석이다.' },
     { who: 'ingrid', line: '그런 녀석을 이기려면, 그 녀석이 못 읽은 서류를 찾아라. 그게 택티컬이다.' },
