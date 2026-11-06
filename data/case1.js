@@ -92,7 +92,7 @@ window.CASE = {
     andersen:   { name: '엔더슨', voice: 170, color: '#6a5a40' },  // 에필로그(재판장 별칭과 별도). 지휘관에게 하게체·'자네', 갓데스에게는 반말
     rapunzel:   { name: '라푼젤', voice: 290, color: '#e0c070' },  // 5심 증인, 갓데스. 기본형. 플레이어 '형제님', 니케 '자매님', 다정한 존댓말. 단 엔더슨은 '지휘관', 도로시는 '도로시', 스노우 화이트는 '스노우 화이트'(사용자 지정 2026-11-06), 도로시가 살아 있다는 건 알고 있음(원작), 릴리바이스는 '릴리스'(사용자 지정 2026-11-05)
     arcana:     { name: '아르카나', voice: 330, color: '#5a70d0' },  // 5심 첫 증인. 금서고 사서, 이격 「포춘 메이트」
-    oswald:     { name: '오스왈드', voice: 180, color: '#6a6a6a', portrait: false },  // 영매로만 등장(그림 = medium_oswald_*). 격식체 '저'
+    oswald:     { name: '오스왈드', voice: 180, color: '#6a6a6a', portrait: false },  // 영매로만 등장(그림 = medium_oswald_*). 격식체 '저'. 도로시는 '리더 대행 도로시'/'리더 대행', 갓데스는 '당신들'(원작, '도로시 양' 금지 — 사용자 지정 2026-11-06)
   },
 
   // from = 출처(이름 아래 한 줄), desc = 사실을 한 줄씩. 설명 칸은 1쪽에 7줄
@@ -3204,7 +3204,7 @@ window.CASE = {
     { op: 'fx', kind: 'murmur', text: '…남자 얼굴이 됐어!' },
     { who: 'medium', line: '……여기는. 법정이군요. 그리고 저 피고석은….' },
     { who: 'dorothy', face: 'angry', line: '……당신.' },
-    { who: 'medium', face: 'sad', line: '…도로시 양. 오랜만입니다. 문 너머에서만 들었던 목소리를, 이렇게 마주하는군요.' },
+    { who: 'medium', face: 'sad', line: '…리더 대행 도로시. 오랜만입니다. 문 너머에서만 들었던 목소리를, 이렇게 마주하는군요.' },
     { who: 'burningham', line: '……하, 할아버지.' },
     { who: 'medium', line: '버닝엄. 많이 컸구나. …증언하겠습니다. 무엇이든 물어보십시오.' },
     { op: 'save' },
@@ -3263,7 +3263,7 @@ window.CASE = {
     { op: 'fx', kind: 'flash' },
     { who: 'medium', face: 'sad', line: '……그 책을, 읽으셨군요.' },
     { who: 'dorothy', face: 'shock', line: '……' },
-    { who: 'medium', line: '도로시 양. 문을 열면 당신들은 방주 안에서 반역자로 처형됐을 겁니다. 문을 닫으면, 적어도 살 수는 있었습니다.' },
+    { who: 'medium', line: '리더 대행. 문을 열면 당신들은 방주 안에서 반역자로 처형됐을 겁니다. 문을 닫으면, 적어도 살 수는 있었습니다.' },
     { who: 'medium', face: 'sad', line: '피나라는 니케까지는… 구하지 못했습니다. 미안합니다. 100년 늦은 사과입니다.' },
     { who: 'dorothy', face: 'sad', line: '……이제 와서, 그런 말을 하면.' },
     { who: 'medium', line: '버닝엄. 나머지는 네가 마무리해라. 너라면 알 거다.' },
