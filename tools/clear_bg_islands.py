@@ -25,7 +25,11 @@ HAIR_DIST = 120            # 둘레가 머리카락처럼 색이 있는 섬은 �
 # 위 거리는 머리카락 안쪽 틈만 잡히는 인물에만 쓴다(다른 인물은 휘장·보석·꽃 장식의 흰색까지 잡혀서 뺌, 2026-11-05 확인)
 HAIR_DEEP = ("dorothy", "rapi_")
 # 흰 머리·흰 옷이라 순백 하이라이트가 배경과 구별되지 않는 인물(덩기덕)은 건너뛴다
-SKIP = ("me_",)
+# 폴리도 흰 머리라 눈 흰자를 배경 틈으로 잘못 지웠다(2026-11-06 사용자 지적) → 건너뜀
+SKIP = ("me_", "poli_")
+# 거리 기준을 넘는 깊은 틈은 원본 좌표로 직접 짚는다(2026-11-06 사용자 지적: 미란다 목 양옆·팔과 머리 사이).
+# 표정마다 섬 번호가 달라서, 지점이 들어 있는(없으면 20픽셀 안에서 가장 가까운) 순백 섬을 지운다
+PICK = {"miranda_": [(922, 566), (356, 695), (700, 622), (1243, 848), (435, 520)]}
 
 
 def label(m):
@@ -70,7 +74,7 @@ def is_pocket(raw, Lc, k, dist, deep):
     return d <= EDGE_DIST and (lo < 150 or len(ys) >= 300)
 
 
-def islands(raw, deep=False):
+def islands(raw, deep=False, picks=()):
     """원본에서 (테두리 배경, 남은 배경 섬) 두 마스크를 돌려준다."""
     mn = raw.min(axis=2)
     L, _ = label(mn >= 255 - 28)
@@ -86,6 +90,12 @@ def islands(raw, deep=False):
                 dist[ny, nx] = d; q.append((ny, nx))
     Lc, s = label((mn >= PURE) & ~bg)
     keep = [k for k in np.nonzero(s >= MIN_CORE)[0] if k > 0 and is_pocket(raw, Lc, k, dist, deep)]
+    for x, y in picks:
+        win = Lc[max(y - 20, 0):y + 21, max(x - 20, 0):x + 21]
+        ys, xs = np.nonzero(win)
+        if len(ys):
+            i = np.argmin((ys - min(y, 20)) ** 2 + (xs - min(x, 20)) ** 2)
+            keep.append(win[ys[i], xs[i]])
     core = np.isin(Lc, keep)
     isl = core.copy()
     near = (mn >= NEAR) & ~bg
@@ -102,7 +112,8 @@ def find_raw(repo, name, size):
         if not p.exists():
             continue
         raw = np.array(Image.open(p).convert("RGB")).astype(int)
-        bg, isl = islands(raw, name.startswith(HAIR_DEEP))
+        picks = next((v for k, v in PICK.items() if name.startswith(k)), ())
+        bg, isl = islands(raw, name.startswith(HAIR_DEEP), picks)
         ys, xs = np.nonzero(~bg)
         box = (xs.min(), ys.min(), xs.max() + 1, ys.max() + 1)
         bw, bh = box[2] - box[0], box[3] - box[1]
