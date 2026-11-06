@@ -20,10 +20,13 @@
     gold: '#e8c060', text: '#f4f0e6', dim: '#8a86a8', think: '#8cc8ff',
     testimony: '#7ee08a', red: '#e0505a', box: '#10101c', ink: '#0d0b14',
   };
-  // 저장은 대본 위치(pc)로 기억하므로, 대본이 바뀌면 옛 저장을 쓰지 않도록 대본 해시를 키에 붙인다
-  const scriptHash = (() => { let h = 5381; const t = JSON.stringify(CASE.script); for (let i = 0; i < t.length; i++) h = ((h * 33) ^ t.charCodeAt(i)) >>> 0; return h.toString(36); })();
+  // 저장은 대본 위치(pc)로 기억하므로, 대본의 '뼈대'가 바뀌면 옛 저장을 쓰지 않도록 뼈대 해시를 키에 붙인다.
+  // 뼈대 = 명령의 순서·종류·id와 조사 장소별 단서 수. 대사 글자만 고치면 해시가 그대로라 저장이 유지된다(2026-11-06, 전에는 글자까지 해시)
+  const scriptShape = CASE.script.map((op) => (!op.op ? 'L' : [op.op, op.id || '', op.op === 'investigate'
+    ? Object.entries(op.places).map(([k, p]) => `${k}:${(p.spots || []).length}/${(p.talk || []).length}`).join(',') : ''].join('|'))).join(';');
+  const scriptHash = (() => { let h = 5381; for (let i = 0; i < scriptShape.length; i++) h = ((h * 33) ^ scriptShape.charCodeAt(i)) >>> 0; return h.toString(36); })();
   const GAME = CASE.gameId || 'nayuta-trial'; // 저장·설정 이름 앞부분. 다른 게임과 저장이 섞이지 않게
-  const SAVE_KEY = GAME + '.save.v1.' + scriptHash;
+  const SAVE_KEY = GAME + '.save.v2.' + scriptHash;
   // 익명 방문 집계(2026-11-05): 브라우저마다 무작위 번호 하나만 보내고, 종류별로 한 번만 센다.
   // 공개 주소(pages.dev)에서만 보낸다. 주소에 ?me를 붙여 한 번 열면 그 브라우저는 집계에서 빠진다(제작자 본인용)
   const STAT_KEY = GAME + '.stat';
@@ -432,7 +435,7 @@
   const FIND_LINES = ['(…이건 증거가 될 것 같다. 챙겨 두자.)', '(이것도 챙겨 두자. 법정에서 쓸 수 있을지도 모른다.)', '(좋아, 하나 더 찾았다.)'];
   try { S.saved = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null'); } catch (e) { S.saved = null; }
   // 수동 저장 3칸: 자동 저장(이어하기)과 따로 둔다. 대본이 바뀌면 pc가 어긋나므로 같은 대본 해시만 읽는다
-  const SLOTS = 3, slotKey = (i) => `${GAME}.slot${i + 1}.v1.${scriptHash}`;
+  const SLOTS = 3, slotKey = (i) => `${GAME}.slot${i + 1}.v2.${scriptHash}`;
   S.slots = Array.from({ length: SLOTS }, (_, i) => { try { return JSON.parse(localStorage.getItem(slotKey(i)) || 'null'); } catch (e) { return null; } });
 
   // ───────── 진행기: 명령을 차례로 실행하다가 입력을 기다리는 명령에서 멈춘다 ─────────
