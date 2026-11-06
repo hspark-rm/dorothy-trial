@@ -26,8 +26,8 @@ window.CASE = {
   cg: ['salute'],
   pocket: false, // 증거가 주머니에서 저절로 나오는 연출을 쓰지 않는다(사용자 지정 2026-11-04)
   askName: true, defaultName: '지휘관', // 새로 시작할 때 이름을 묻는다
-  title: '도로시 재판',
-  tagline: '지휘관의 변론',
+  title: '역전니케',
+  tagline: '-도로시편-', // 타이틀 화면에서 제목 아래 줄에 쓴다(한 줄로는 화면 폭을 넘음)
   subtitle: '— 제1심부터 제5심까지 —',
   // 프롤로그 악몽 화면에 흐르는 방주 여론
   nightmare: ['필그림 주제에', '필그림 따위', '방주를 증오한대', '라피 죽이려 했다며', '에덴 기술 팔아먹음', '사형시켜라', '구경 가자', '0.02%ㅋㅋ', '방주를 떠나라', '저게 영웅?'],
@@ -1265,7 +1265,7 @@ window.CASE = {
       op: 'investigate', id: 'inv2', start: 'plaza',
       places: {
         plaza: {
-          name: '중앙정부 광장', bg: 'plaza', who: 'poli', desc: '광장 사건이 일어난 곳. A.C.P.U.가 현장을 지키고 있다.', move: ['acpu'],
+          name: '중앙정부 광장', bg: 'plaza', who: 'poli', desc: '광장 사건 현장. A.C.P.U.가 지키고 있다.', move: ['acpu'],
           enter: [
             { who: null, line: '중앙정부 광장. 노란 통제선 안쪽으로 그을린 바닥과 파편이 그대로 남아 있다.' },
             { who: 'poli', line: '에흉… 지휘관, 현장 보러 오셨어영? A.C.P.U. 리더 폴리예영.' },
@@ -1890,7 +1890,7 @@ window.CASE = {
       op: 'investigate', id: 'inv4', start: 'plaza',
       places: {
         plaza: {
-          name: '중앙정부 광장', bg: 'plaza', who: 'poli', desc: '광장 사건이 일어난 곳. A.C.P.U.가 현장을 지키고 있다.', move: ['acpu'],
+          name: '중앙정부 광장', bg: 'plaza', who: 'poli', desc: '광장 사건 현장. A.C.P.U.가 지키고 있다.', move: ['acpu'],
           enter: [
             { who: null, line: '다시 찾은 광장. 이번엔 노란 통제선 안쪽까지 들어갈 수 있다.' },
             { who: 'poli', line: '에흉… 지휘관, 또 오셨네영. 감식이 다 끝나서 이제 보여 드릴 수 있어용.' },

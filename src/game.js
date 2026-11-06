@@ -963,7 +963,7 @@
   function resultText() {
     const st = S.stats || { wrongs: 0, hints: 0, overs: 0, sec: 0 };
     const m = Math.floor(st.sec / 60), sc = Math.round(st.sec % 60);
-    return `[${TITLE}: ${TAGLINE}] ${S.end ? S.end.title : ''}!\n` +
+    return `[${TITLE}${TAGLINE}] ${S.end ? S.end.title : ''}!\n` +
       `난이도 ${DIFFS[difficulty].label} · 실수 ${st.wrongs}회 · 힌트 ${st.hints}번 · 패소 ${st.overs}번 · ${m}분 ${String(sc).padStart(2, '0')}초\n` +
       location.href.split('?')[0];
   }
