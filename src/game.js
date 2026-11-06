@@ -42,6 +42,7 @@
     } catch (e) { /* 집계는 게임과 무관하므로 실패해도 넘어간다 */ }
   }
   stat('visit');
+  const isAdmin = () => { try { return localStorage.getItem(STAT_KEY) === 'me'; } catch (e) { return false; } };
   // 난이도: 하트 수와 힌트 양이 달라진다. easy 줄(대본의 easy: true)은 쉬움에서만 나온다
   const DIFFS = {
     easy:   { label: '쉬움',   hearts: 7, hints: 2 },
@@ -985,6 +986,7 @@
       return;
     }
     if (S.scene === 'select') {
+      if (!isAdmin()) { S.scene = 'title'; e.preventDefault(); return; }
       const t = (CASE.trials || [])[Number(k) - 1];
       if (t) startNew(t.label); else if (k === 'Escape' || k === 'x' || k === 'X') S.scene = 'title';
       e.preventDefault(); return;
@@ -1442,7 +1444,8 @@
     const row = [[sound, toggleMute]];
     if (hasSkins) row.push(['의상', () => { S.scene = 'skins'; }]);
     row.push(['불러오기', () => openSlots('load')]);
-    if ((CASE.trials || []).length) row.push(['심 선택', () => { S.scene = 'select'; SFX.select(); }]);
+    // 심 선택은 제작자 기기(?me로 한 번 연 브라우저)에서만 보인다(사용자 지정 2026-11-06)
+    if ((CASE.trials || []).length && isAdmin()) row.push(['심 선택', () => { S.scene = 'select'; SFX.select(); }]);
     if (canFull && !isFull()) row.push(['전체 화면', goFull]);
     const bw = 64, gap = 10, x0 = Math.round(160 - (row.length * bw + (row.length - 1) * gap) / 2);
     row.forEach(([label, fn], i) => button(x0 + i * (bw + gap), 130, bw, 18, label, fn));
