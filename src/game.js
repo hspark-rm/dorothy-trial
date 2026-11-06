@@ -42,6 +42,10 @@
     } catch (e) { /* 집계는 게임과 무관하므로 실패해도 넘어간다 */ }
   }
   stat('visit');
+  // 올클리어(이긴 엔딩을 본 적 있음, 2026-11-06): 타이틀에 엔딩 의상 도로시가 나오고 인물 도감이 열린다
+  const CLEAR_KEY = GAME + '.clear';
+  let cleared = false;
+  try { cleared = localStorage.getItem(CLEAR_KEY) === '1'; } catch (e) { /* 이번 판에서만 */ }
   const isAdmin = () => { try { return localStorage.getItem(STAT_KEY) === 'me'; } catch (e) { return false; } };
   // 난이도: 하트 수와 힌트 양이 달라진다. easy 줄(대본의 easy: true)은 쉬움에서만 나온다
   const DIFFS = {
@@ -330,7 +334,7 @@
   }
   function wantedMusic() {
     if (muted) return null;
-    if (S.scene === 'title' || S.scene === 'skins' || S.scene === 'select') return 'title';
+    if (S.scene === 'title' || S.scene === 'skins' || S.scene === 'select' || S.scene === 'dex') return 'title';
     if (S.scene !== 'play' || S.mode === 'chapter') return null;
     if (S.inv) return 'invest';
     if (S.bg === 'void' || S.bg === 'nightmare' || S.bg === 'night') return 'mystery';
@@ -511,7 +515,12 @@
         S.demand = op;
         sub([{ who: op.who, face: op.face, line: op.line }], () => openOverlay('demand'));
         return true;
-      case 'end': S.scene = 'end'; S.end = op; lockInput(); clearSave(); stat('finish'); stat('finish_' + (S.from || 'unknown')); if (op.result === 'win') SFX.fanfare(); return true;
+      case 'end': S.scene = 'end'; S.end = op; lockInput(); clearSave(); stat('finish'); stat('finish_' + (S.from || 'unknown'));
+        if (op.result === 'win') {
+          SFX.fanfare(); cleared = true; shareFile = null; // 결과 그림은 이번 기록으로 새로 만든다
+          try { localStorage.setItem(CLEAR_KEY, '1'); } catch (e) { /* 이번 판에서만 */ }
+        }
+        return true;
       case 'choice': S.choice = { op, sel: 0 }; S.mode = 'choice'; return true;
       default: console.warn('모르는 명령', op); return false;
     }
@@ -827,8 +836,8 @@
     g.fillRect(x, y, w, h);
     g.fillStyle = o.off ? '#3a3850' : COL.gold;
     g.fillRect(x, y, w, 1); g.fillRect(x, y + h - 1, w, 1); g.fillRect(x, y, 1, h); g.fillRect(x + w - 1, y, 1, h);
-    text(label, x + w / 2, y + Math.floor((h - 14) / 2) + 1, o.off ? COL.dim : hot ? COL.ink : COL.text, { align: 'center' });
-    if (!o.off) B.push({ x, y, w, h, fn });
+    text(label, x + w / 2, y + Math.floor((h - 14 * (o.scale || 1)) / 2) + 1, o.off ? COL.dim : hot ? COL.ink : COL.text, { align: 'center', scale: o.scale });
+    if (!o.off) B.push({ x, y, w, h, fn, onUp: o.onUp });
   }
   function toBase(e) {
     const r = cv.getBoundingClientRect();
@@ -839,7 +848,7 @@
   // 손가락을 떼면 강조 표시를 지운다(마우스와 달리 위치가 남지 않게)
   cv.addEventListener('pointerup', (e) => { if (e.pointerType !== 'mouse') pointer.x = pointer.y = -1; });
   document.addEventListener('pointerdown', (e) => {
-    if (nameBox) return; // 이름 입력 창을 누를 때는 게임 입력으로 쓰지 않는다(입력칸에 글자를 쓸 수 있게)
+    if (nameBox || surveyBox) return; // 이름·설문 창을 누를 때는 게임 입력으로 쓰지 않는다(입력칸에 글자를 쓸 수 있게)
     e.preventDefault();
     if (!started || (S.scene !== 'play' && performance.now() < lockUntil)) return;
     audio();
@@ -847,9 +856,17 @@
     const p = toBase(e); pointer.x = p.x; pointer.y = p.y;
     for (let i = B.length - 1; i >= 0; i--) {
       const b = B[i];
-      if (p.x >= b.x && p.x < b.x + b.w && p.y >= b.y && p.y < b.y + b.h) { b.fn(); return; }
+      if (p.x >= b.x && p.x < b.x + b.w && p.y >= b.y && p.y < b.y + b.h) { if (b.onUp) upBtn = b; else b.fn(); return; }
     }
     confirm();
+  });
+  // 공유 창처럼 '사용자 동작' 안에서만 열리는 기능은 손가락을 뗄 때 실행한다(휴대폰은 누르는 순간을 동작으로 치지 않음)
+  let upBtn = null;
+  document.addEventListener('pointerup', (e) => {
+    const b = upBtn; upBtn = null;
+    if (!b || nameBox || surveyBox) return;
+    const p = toBase(e);
+    if (p.x >= b.x && p.x < b.x + b.w && p.y >= b.y && p.y < b.y + b.h) b.fn();
   });
   function confirm() {
     if (S.scene !== 'play' || S.overlay || S.logView || S.slotView || S.mode === 'choice') return;
@@ -980,10 +997,17 @@
     }
     if (S.scene === 'title') {
       if (k === 'l' || k === 'L') { openSlots('load'); e.preventDefault(); return; }
-      if ((k === 'ArrowUp' || k === 'ArrowDown') && S.saved) { titleSel = 1 - titleSel; SFX.select(); }
-      else if (k === 'Enter' || k === ' ') { if (titleSel === 1 && S.saved) begin(S.saved); else startNew(); }
+      const opts = [0, ...(S.saved ? [1] : []), ...(cleared ? [2] : [])];
+      if ((k === 'ArrowUp' || k === 'ArrowDown') && opts.length > 1) { const j = opts.indexOf(titleSel); titleSel = opts[(j + (k === 'ArrowUp' ? opts.length - 1 : 1)) % opts.length]; SFX.select(); }
+      else if (k === 'Enter' || k === ' ') { if (titleSel === 1 && S.saved) begin(S.saved); else if (titleSel === 2 && cleared) openDex(); else startNew(); }
       e.preventDefault();
       return;
+    }
+    if (S.scene === 'dex') {
+      if (k === 'ArrowLeft') dexMove(-1); else if (k === 'ArrowRight') dexMove(1);
+      else if (k === 'ArrowUp') dexFace(-1); else if (k === 'ArrowDown' || k === 'Enter' || k === ' ') dexFace(1);
+      else if (k === 'Escape' || k === 'x' || k === 'X') toTitle();
+      e.preventDefault(); return;
     }
     if (S.scene === 'select') {
       if (!isAdmin()) { S.scene = 'title'; e.preventDefault(); return; }
@@ -1067,9 +1091,55 @@
       `난이도 ${DIFFS[difficulty].label} · 실수 ${st.wrongs}회 · 힌트 ${st.hints}번 · 패소 ${st.overs}번 · ${m}분 ${String(sc).padStart(2, '0')}초\n` +
       location.href.split('?')[0];
   }
-  function copyResult() {
+  // ───────── 결과 공유(2026-11-06): 1200×630 결과 그림 + 글. 휴대폰은 공유 창, 안 되면 그림 저장 + 글 복사 ─────────
+  let shareFile = null, shareBusy = false;
+  function makeShareFile() {
+    const art = titleArt();
+    if (shareBusy || art === undefined || !document.fonts) return; // 도로시 그림을 읽는 중이면 다음 프레임에
+    shareBusy = true;
+    const c = mk(1200, 630), x = c.getContext('2d'), st = S.stats || { wrongs: 0, hints: 0, overs: 0, sec: 0 };
+    x.imageSmoothingEnabled = false;
+    x.fillStyle = COL.night; x.fillRect(0, 0, 1200, 630);
+    for (let i = 0; i < 90; i++) { x.fillStyle = i % 4 ? '#3a3858' : '#6a68a0'; x.fillRect((i * 211) % 1200, (i * 97) % 630, 4, 4); }
+    if (art) {
+      const ah = 600, aw = (art.width * ah) / art.height;
+      x.drawImage(art, 1200 - aw + 50, 630 - ah, aw, ah);
+      const fade = x.createLinearGradient(430, 0, 720, 0);
+      fade.addColorStop(0, 'rgba(7,6,12,1)'); fade.addColorStop(1, 'rgba(7,6,12,0)');
+      x.fillStyle = fade; x.fillRect(430, 0, 290, 630); x.fillStyle = 'rgba(7,6,12,0.6)'; x.fillRect(0, 0, 430, 630);
+    }
+    const put = (t, px, y, color, bold, outline) => {
+      x.font = fontOf(bold, px); x.textBaseline = 'top';
+      if (outline) { x.lineWidth = px / 8; x.strokeStyle = COL.ink; x.lineJoin = 'round'; x.strokeText(t, 60, y); }
+      x.fillStyle = color; x.fillText(t, 60, y);
+    };
+    put(TITLE, 120, 40, COL.gold, true, true);
+    put(TAGLINE, 56, 172, COL.text, true, true);
+    put(S.end ? S.end.title : '', 64, 264, S.end && S.end.result === 'win' ? COL.gold : COL.red, true, true);
+    put(`난이도 ${DIFFS[difficulty].label} · 변호인 ${playerName}`, 34, 360, COL.text);
+    put(`실수 ${st.wrongs}회 · 힌트 ${st.hints}번 · 패소 ${st.overs}번`, 34, 408, COL.text);
+    put(`플레이 시간 ${Math.floor(st.sec / 60)}분 ${String(Math.round(st.sec % 60)).padStart(2, '0')}초`, 34, 456, COL.dim);
+    put(location.host || 'dorothy-trial.pages.dev', 30, 548, COL.gold);
+    put('비공식 팬게임 · 원작 승리의 여신: 니케 / SHIFT UP', 22, 590, COL.dim);
+    c.toBlob((blob) => { shareBusy = false; if (blob) shareFile = new File([blob], `${GAME}-result.png`, { type: 'image/png' }); });
+  }
+  function shareResult() {
+    stat('share');
     const t = resultText();
-    const done = () => { S.toast = { t: 1.6, text: '결과를 복사했습니다' }; SFX.select(); };
+    if (shareFile && navigator.canShare && navigator.canShare({ files: [shareFile] })) {
+      navigator.share({ files: [shareFile], text: t }).then(() => { S.toast = { t: 1.6, text: '공유했습니다' }; }, () => {});
+      return;
+    }
+    // 공유 창이 없으면(대부분의 PC) 그림을 내려받고 글을 복사한다
+    if (shareFile) {
+      const a = document.createElement('a'); a.href = URL.createObjectURL(shareFile); a.download = shareFile.name;
+      document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    }
+    copyResult(shareFile ? '결과 그림을 저장하고 글을 복사했습니다' : null);
+  }
+  function copyResult(msg) {
+    const t = resultText();
+    const done = () => { S.toast = { t: 2, text: typeof msg === 'string' ? msg : '결과를 복사했습니다' }; SFX.select(); };
     const fallback = () => {
       const ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select();
       try { document.execCommand('copy'); done(); } catch (e) { S.toast = { t: 2, text: '복사하지 못했습니다' }; }
@@ -1426,19 +1496,39 @@
   const MAKER = CASE.maker || '유기농쵸비'; // 제작자 표기(게임마다 CASE.maker)
   const NOTICE = `제작 ${MAKER} · 비영리 팬 프로젝트 · 문제 시 즉시 삭제합니다`;
   const FEEDBACK = '피드백: globalchmist@naver.com';
+  // 올클리어 타이틀의 도로시(엔딩 의상). 초상보다 크게 따로 도트로 만든다
+  const TITLE_ART = 'dorothy_alt_smile', ART_H = 150;
+  const titleArt = () => asset('title:' + TITLE_ART, `assets/portraits/${TITLE_ART}.png`, (im) => {
+    const r = alphaBox(im);
+    return pixelate(im, r, (r.w * ART_H) / r.h, ART_H, 0);
+  });
   function drawTitle() {
     rect(0, 0, W, H, COL.night);
     for (let i = 0; i < 40; i++) {
       const x = (i * 73) % W, y = (i * 41 + Math.floor(S.t * 6 * ((i % 3) + 1))) % 120;
       rect(x, y, 1, 1, i % 4 ? '#3a3858' : '#6a68a0');
     }
-    text(TITLE, 160, 10, COL.gold, { align: 'center', bold: true, scale: 3, outline: COL.ink });
-    // 부제 = 나유타의 시그니처 대사
-    text(TAGLINE, 160, 50, COL.text, { align: 'center', bold: true, scale: 1.5, outline: COL.ink });
-    text(CASE.subtitle || '', 160, 72, COL.dim, { align: 'center' });
-    if (!S.saved) titleSel = 0;
-    button(110, 88, 100, 18, '새로 시작', startNew, { sel: titleSel === 0 && pointer.x < 0 });
-    button(110, 109, 100, 18, '이어하기', () => begin(S.saved), { off: !S.saved, sel: titleSel === 1 && pointer.x < 0 });
+    // 올클리어면 도로시를 오른쪽에 두고, 글자·버튼은 왼쪽 열(가운데 92)로 옮긴다
+    const art = cleared ? titleArt() : null;
+    const cx = art ? 92 : 160;
+    if (art) {
+      const aw = art.width / RES, ah = art.height / RES;
+      g.drawImage(art, W - aw + 14, H - ah, aw, ah);
+      const fade = g.createLinearGradient(110, 0, 190, 0);
+      fade.addColorStop(0, 'rgba(7,6,12,1)'); fade.addColorStop(1, 'rgba(7,6,12,0)');
+      g.fillStyle = fade; g.fillRect(110, 0, 80, H);
+      rect(0, 0, 110, H, 'rgba(7,6,12,0.55)');
+    }
+    const y0 = art ? -4 : 0; // 올클리어 화면은 버튼이 하나 더 있어 위로 조금 올린다
+    text(TITLE, cx, 10 + y0, COL.gold, { align: 'center', bold: true, scale: 3, outline: COL.ink });
+    text(TAGLINE, cx, 50 + y0, COL.text, { align: 'center', bold: true, scale: 1.5, outline: COL.ink });
+    text(CASE.subtitle || '', cx, 72 + y0, COL.dim, { align: 'center' });
+    if (!S.saved && titleSel === 1) titleSel = 0;
+    if (!cleared && titleSel === 2) titleSel = 0;
+    const bx = cx - 50, by = art ? 82 : 88;
+    button(bx, by, 100, 18, '새로 시작', startNew, { sel: titleSel === 0 && pointer.x < 0 });
+    button(bx, by + 21, 100, 18, '이어하기', () => begin(S.saved), { off: !S.saved, sel: titleSel === 1 && pointer.x < 0 });
+    if (cleared) button(bx, by + 42, 100, 18, '인물 도감', openDex, { sel: titleSel === 2 && pointer.x < 0 });
     const sound = muted ? '소리 꺼짐' : '소리 켜짐';
     const hasSkins = Object.keys(CASE.variants || {}).length > 0;
     const row = [[sound, toggleMute]];
@@ -1447,12 +1537,48 @@
     // 심 선택은 제작자 기기(?me로 한 번 연 브라우저)에서만 보인다(사용자 지정 2026-11-06)
     if ((CASE.trials || []).length && isAdmin()) row.push(['심 선택', () => { S.scene = 'select'; SFX.select(); }]);
     if (canFull && !isFull()) row.push(['전체 화면', goFull]);
-    const bw = 64, gap = 10, x0 = Math.round(160 - (row.length * bw + (row.length - 1) * gap) / 2);
-    row.forEach(([label, fn], i) => button(x0 + i * (bw + gap), 130, bw, 18, label, fn));
-    text(CREDIT, 160, 152, COL.dim, { align: 'center' });
-    text(NOTICE, 160, 166, '#6a6890', { align: 'center', scale: 10 / 12 });
+    if (art) {
+      // 왼쪽 열에 맞게 작은 버튼(10px 글자)으로 줄인다
+      const bw = 54, gap = 4, x0 = Math.max(4, Math.round(cx - (row.length * bw + (row.length - 1) * gap) / 2));
+      row.forEach(([label, fn], i) => button(x0 + i * (bw + gap), 144, bw, 15, label, fn, { scale: 10 / 12 }));
+      rect(0, 160, W, 20, 'rgba(7,6,12,0.8)');
+      text(CREDIT, 160, 160, COL.dim, { align: 'center', scale: 10 / 12 });
+      text(NOTICE, 160, 170, '#6a6890', { align: 'center', scale: 10 / 12 });
+    } else {
+      const bw = 64, gap = 10, x0 = Math.round(160 - (row.length * bw + (row.length - 1) * gap) / 2);
+      row.forEach(([label, fn], i) => button(x0 + i * (bw + gap), 130, bw, 18, label, fn));
+      text(CREDIT, 160, 152, COL.dim, { align: 'center' });
+      text(NOTICE, 160, 166, '#6a6890', { align: 'center', scale: 10 / 12 });
+    }
     text('v0.2', 316, 2, '#4a4870', { align: 'right' });
     if (dataErrors.length) text(`데이터 오류 ${dataErrors.length}건 (콘솔 확인)`, 4, 2, COL.red);
+  }
+  // ───────── 인물 도감(올클리어 특전, 2026-11-06): ◀▶ 인물, ▲▼ 표정 ─────────
+  const FACE_KO = { normal: '기본', smile: '웃음', smirk: '비웃음', blush: '부끄러움', sad: '슬픔', cry: '울음', angry: '화남', shock: '놀람', determined: '결의', stern: '엄격', trance: '빙의 중', drunk: '취함' };
+  function openDex() {
+    if (!cleared || !(CASE.dex || []).length) return;
+    S.dex = S.dex || { i: 0, f: 0 };
+    S.scene = 'dex'; SFX.select(); stat('dex');
+  }
+  function dexMove(d) { const n = CASE.dex.length; S.dex.i = (S.dex.i + d + n) % n; S.dex.f = 0; SFX.select(); }
+  function dexFace(d) { const n = CASE.dex[S.dex.i].faces.length; S.dex.f = (S.dex.f + d + n) % n; SFX.select(); }
+  function drawDex() {
+    rect(0, 0, W, H, COL.night);
+    const e = CASE.dex[S.dex.i], face = e.faces[S.dex.f];
+    text('인물 도감', 12, 6, COL.gold, { bold: true });
+    text(`${S.dex.i + 1} / ${CASE.dex.length}`, 308, 6, COL.dim, { align: 'right' });
+    // 왼쪽: 초상(법정 화면과 같은 크기), 오른쪽: 이름·소개·표정
+    rect(10, 24, 132, 118, '#1a1830');
+    const c = portraitImg(e.img, e.id, face);
+    if (c) { const pw = c.width / RES, ph = c.height / RES; g.drawImage(c, 76 - pw / 2, 142 - ph, pw, ph); }
+    text(e.name, 152, 28, COL.gold, { bold: true, scale: 1.25 });
+    wrap(e.role, 156).slice(0, 4).forEach((l, i) => text(l, 152, 50 + i * 14, COL.text));
+    text(`표정 ${S.dex.f + 1}/${e.faces.length} · ${FACE_KO[face] || face}`, 152, 108, COL.dim, { scale: 10 / 12 });
+    button(152, 120, 74, 18, '▲ 표정', () => dexFace(-1), { off: e.faces.length < 2 });
+    button(232, 120, 74, 18, '표정 ▼', () => dexFace(1), { off: e.faces.length < 2 });
+    button(10, 150, 70, 20, '◀ 이전', () => dexMove(-1));
+    button(86, 150, 70, 20, '다음 ▶', () => dexMove(1));
+    button(236, 150, 70, 20, '돌아가기', toTitle);
   }
   // 패소 화면: 나유타가 나와 태연하게 위로한다(왼쪽 초상, 오른쪽 버튼, 아래 대사)
   const OVER = CASE.over || { who: 'nayuta', face: 'smile', line: '승리했으니 괜찮소. 소인은 소인의 목숨을 중히 여기지 않소.' };
@@ -1478,7 +1604,8 @@
     text(`난이도 ${DIFFS[difficulty].label}`, 160, 92, COL.gold, { align: 'center', bold: true });
     text(`실수 ${st.wrongs}회 · 힌트 ${st.hints}번 · 패소 ${st.overs}번`, 160, 107, COL.text, { align: 'center' });
     text(`플레이 시간 ${Math.floor(st.sec / 60)}분 ${String(Math.round(st.sec % 60)).padStart(2, '0')}초`, 160, 121, COL.dim, { align: 'center' });
-    button(64, 142, 62, 18, '결과 복사', copyResult);
+    if (!shareFile) makeShareFile();
+    button(64, 142, 62, 18, '결과 공유', shareResult, { onUp: true });
     button(129, 142, 62, 18, '설문', openSurvey);
     button(194, 142, 62, 18, '타이틀로', toTitle);
     text(`${FEEDBACK} · 제작 ${MAKER}`, 160, 166, COL.dim, { align: 'center', scale: 10 / 12 });
@@ -1587,6 +1714,7 @@
     else if (S.scene === 'title') { drawTitle(); stat('title'); if (S.slotView) { B = []; drawSlots(); } }
     else if (S.scene === 'skins') drawSkins();
     else if (S.scene === 'select') drawSelect();
+    else if (S.scene === 'dex') drawDex();
     else if (S.scene === 'over') drawOver();
     else if (S.scene === 'end') drawEnd();
     else if (S.mode === 'chapter') drawChapter();
@@ -1628,5 +1756,5 @@
   fonts.then(rewrapLine).catch(() => {});
 
   // 개발 확인용
-  window.__trial = window.__nayuta = { S, step, present, begin, dataErrors, music, resultText, evList, openSurvey, inv: { spots: () => invSpots(), topics: () => invTopics(), moves: () => invMoves(), examine, talk, moveTo, finish: finishInv, ready: () => invReady() } };
+  window.__trial = window.__nayuta = { S, step, present, begin, dataErrors, music, resultText, evList, openSurvey, shareFile: () => shareFile, inv: { spots: () => invSpots(), topics: () => invTopics(), moves: () => invMoves(), examine, talk, moveTo, finish: finishInv, ready: () => invReady() } };
 })();

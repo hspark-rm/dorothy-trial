@@ -35,6 +35,37 @@ window.CASE = {
   // 패소 화면: 도로시가 남기는 말
   over: { who: 'dorothy', face: 'sad', line: '역시 방주는 저를 버리는군요. …귀하만은 다를 줄 알았는데.' },
 
+  // 인물 도감(올클리어 특전, 2026-11-06). img = 초상 파일 앞부분, id = chars의 인물(자르기 설정을 따름), faces = 있는 표정
+  dex: [
+    { img: 'dorothy', id: 'dorothy', name: '도로시', role: '피고. 방주를 증오한다고 말하는 필그림.', faces: ['normal', 'smile', 'smirk', 'blush', 'sad', 'cry', 'angry', 'shock', 'determined'] },
+    { img: 'dorothy_armor', id: 'dorothy', name: '도로시 (전투복)', role: '100년 전, 갓데스 스쿼드의 리더 대행이던 시절.', faces: ['normal', 'smile', 'smirk', 'blush', 'sad', 'cry', 'angry', 'shock', 'determined'] },
+    { img: 'dorothy_alt', id: 'dorothy', name: '도로시 (에필로그)', role: '다섯 번의 재판을 마친 뒤.', faces: ['normal', 'smile', 'blush', 'sad', 'cry'] },
+    { img: 'anis', id: 'anis', name: '아니스', role: '카운터스. 레드 후드의 고향에서 도로시와 맞섰다.', faces: ['normal', 'smile', 'shock'] },
+    { img: 'neon', id: 'neon', name: '네온', role: '카운터스. 지휘관을 스승님이라 부른다.', faces: ['normal', 'smile', 'shock'] },
+    { img: 'rapi', id: 'rapi', name: '라피', role: '카운터스. 제2심의 피해자이자 증인.', faces: ['normal', 'sad', 'stern'] },
+    { img: 'judge', id: 'judge', name: '에닉', role: '방주 법정의 재판장. 방주를 관리하는 AI.', faces: ['normal', 'stern'] },
+    { img: 'prosecutor', id: 'prosecutor', name: '노벨', role: '제1심 검사. 방주의 명탐정을 자처한다.', faces: ['normal', 'stern'] },
+    { img: 'johan', id: 'johan', name: '요한', role: '에덴의 지휘관. 도로시를 제명한 사람.', faces: ['normal', 'stern', 'shock'] },
+    { img: 'ingrid', id: 'ingrid', name: '잉그리드', role: '제2심 검사. 엘리시온 대표이자 라피의 교관.', faces: ['normal', 'smile', 'stern', 'shock'] },
+    { img: 'medium', id: 'medium', name: '영매', role: '양산형 니케. 이미 없는 사람을 몸에 불러온다.', faces: ['normal', 'trance'] },
+    { img: 'medium_redhood', id: 'medium', name: '영매 (레드 후드)', role: '제2심에 불려 온 사람.', faces: ['normal', 'smile', 'sad'] },
+    { img: 'iri', id: 'iri', name: '아이리', role: '제3심 검사, 제4심 증인. 오버시어 감찰부대원.', faces: ['normal', 'smile', 'stern', 'shock'] },
+    { img: 'poli', id: 'poli', name: '폴리', role: 'A.C.P.U. 리더.', faces: ['normal', 'smile', 'shock'] },
+    { img: 'miranda', id: 'miranda', name: '미란다', role: 'A.C.P.U. 대원. 실은 감사부 감찰관.', faces: ['normal', 'smile', 'shock'] },
+    { img: 'citizen', id: 'citizen', name: '방주 시민', role: '식스오 테러 때 도로시에게 구조된 시민.', faces: ['normal', 'smile', 'sad'] },
+    { img: 'doban', id: 'doban', name: '도반', role: '제4심 검사. 저승에서 돌아온 중앙정부 부사령관.', faces: ['normal', 'smile', 'shock'] },
+    { img: 'medium_fina', id: 'medium', name: '영매 (피나)', role: '제4심에 불려 온 사람.', faces: ['normal', 'sad'] },
+    { img: 'andersen_hidden', id: 'andersen', name: '5심 재판장', role: '가면을 쓴 특례 재판장.', faces: ['normal'] },
+    { img: 'burningham', id: 'burningham', name: '버닝엄', role: '제5심 검사. 중앙정부 부사령관.', faces: ['normal', 'smile', 'stern'] },
+    { img: 'arcana', id: 'arcana', name: '아르카나', role: '금서고의 사서. 제5심 첫 증인.', faces: ['normal', 'smile', 'blush', 'shock'] },
+    { img: 'snowwhite', id: 'snowwhite', name: '스노우 화이트', role: '제5심 증인. 갓데스 스쿼드.', faces: ['normal', 'smile', 'shock'] },
+    { img: 'hongryeon', id: 'hongryeon', name: '홍련', role: '제5심 증인. 갓데스 스쿼드.', faces: ['normal', 'shock', 'drunk'] },
+    { img: 'rapunzel', id: 'rapunzel', name: '라푼젤', role: '제5심 증인. 갓데스 스쿼드.', faces: ['normal', 'smile', 'sad'] },
+    { img: 'cecil', id: 'cecil', name: '세실', role: '에덴의 개발자. 제5심 증인.', faces: ['normal', 'smile', 'shock'] },
+    { img: 'medium_oswald', id: 'medium', name: '영매 (오스왈드)', role: '제5심에 불려 온 사람.', faces: ['normal', 'sad'] },
+    { img: 'andersen', id: 'andersen', name: '엔더슨', role: '5심 재판장의 정체.', faces: ['normal', 'smile', 'sad'] },
+  ],
+
   // 인물. voice = 대사 효과음 높이(Hz), color = 그림이 없을 때 자리표시 색, portrait: false = 초상 없음
   chars: {
     judge:      { name: '에닉',   voice: 200, color: '#8a7a9a' },  // 재판장 = 방주 관리 AI 에닉
